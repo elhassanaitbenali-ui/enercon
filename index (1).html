@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ENERCON Status</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #F5F4F0;
+  --card:     #FFFFFF;
+  --ink:      #111110;
+  --ink2:     #6B6A65;
+  --ink3:     #B0AFA9;
+  --line:     #E5E4DF;
+  --amber:    #D97706;
+  --amber-bg: #FEF3C7;
+  --red:      #DC2626;
+  --red-bg:   #FEE2E2;
+  --blue:     #1D4ED8;
+  --blue-bg:  #DBEAFE;
+  --green:    #15803D;
+  --green-bg: #DCFCE7;
+  --shadow:   0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.12);
+  --r:        16px;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* ── HEADER ── */
+.app-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  background: #1B5E2F;
+}
+
+.brand-logo {
+  height: 36px;
+  width: auto;
+  display: block;
+}
+
+.brand-mark {
+  width: 36px; height: 36px;
+  background: var(--ink);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.brand-mark svg { width: 20px; height: 20px; }
+
+.brand-text {
+  flex: 1;
+}
+
+.brand-text h1 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.brand-text p {
+  font-size: 11px;
+  color: var(--ink3);
+  font-family: 'DM Mono', monospace;
+  margin-top: 2px;
+  letter-spacing: 0.2px;
+}
+
+/* ── SCROLL AREA ── */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── SEARCH CARD ── */
+.search-card {
+  background: var(--card);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  animation: slideUp .35s cubic-bezier(.16,1,.3,1) both;
+}
+
+.search-card label-group {
+  display: block;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.inputs-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.field-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.num-input {
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--ink);
+  padding: 12px 14px;
+  width: 100%;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+  -webkit-appearance: none;
+  appearance: none;
+  line-height: 1;
+}
+
+.num-input::placeholder { color: var(--ink3); font-size: 24px; }
+.num-input:focus {
+  border-color: var(--ink);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(17,17,16,.08);
+}
+
+.btn-search {
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  padding: 0 20px;
+  height: 56px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 7px;
+  flex-shrink: 0;
+  transition: background .15s, transform .1s, box-shadow .15s;
+  margin-top: 22px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+
+.btn-search:active {
+  background: #333;
+  transform: scale(.97);
+  box-shadow: none;
+}
+
+.btn-search svg { width: 16px; height: 16px; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  background: var(--card);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  padding: 40px 20px;
+  text-align: center;
+  animation: slideUp .4s .1s cubic-bezier(.16,1,.3,1) both;
+}
+
+.empty-icon {
+  width: 56px; height: 56px;
+  background: var(--bg);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.empty-icon svg { width: 26px; height: 26px; opacity: .35; }
+
+.empty-state h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.empty-state p {
+  font-size: 13px;
+  color: var(--ink2);
+  line-height: 1.6;
+}
+
+/* ── RESULT CARD ── */
+.result-card {
+  background: var(--card);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: slideUp .3s cubic-bezier(.16,1,.3,1) both;
+}
+
+/* Color bar at top */
+.result-bar {
+  height: 4px;
+  width: 100%;
+}
+.result-bar.fault { background: linear-gradient(90deg, var(--red), #f87171); }
+.result-bar.warn  { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+.result-bar.info  { background: linear-gradient(90deg, var(--blue), #60a5fa); }
+.result-bar.ok    { background: linear-gradient(90deg, var(--green), #4ade80); }
+
+.result-body { padding: 20px; }
+
+/* Badge */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 99px;
+  padding: 4px 12px 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  margin-bottom: 18px;
+}
+
+.status-pill.fault { background: var(--red-bg);   color: var(--red); }
+.status-pill.warn  { background: var(--amber-bg); color: var(--amber); }
+.status-pill.info  { background: var(--blue-bg);  color: var(--blue); }
+.status-pill.ok    { background: var(--green-bg); color: var(--green); }
+
+.pill-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.pill-dot.fault { animation: pulseDot 1.4s infinite; }
+
+@keyframes pulseDot {
+  0%,100% { opacity:1; transform: scale(1); }
+  50%      { opacity:.5; transform: scale(.7); }
+}
+
+/* Descriptions */
+.desc-block { margin-bottom: 20px; }
+
+.desc-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 4px;
+}
+
+.desc-main-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.25;
+  letter-spacing: -.3px;
+}
+
+.desc-sub-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.25;
+  letter-spacing: -.3px;
+  margin-top: 2px;
+  padding-left: 32px;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: var(--line);
+  margin: 18px 0;
+}
+
+/* ID Row */
+.id-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.id-chip {
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.id-chip-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 4px;
+}
+
+.id-chip-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.id-chip-value.board { font-size: 18px; color: var(--ink2); }
+
+/* Footer ref */
+.ref-line {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--ink3);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: .2px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* ── ERROR ── */
+.error-card {
+  background: var(--card);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  padding: 28px 20px;
+  text-align: center;
+  animation: slideUp .3s cubic-bezier(.16,1,.3,1) both;
+}
+
+.error-code {
+  font-family: 'DM Mono', monospace;
+  font-size: 42px;
+  font-weight: 500;
+  color: var(--red);
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.error-card p {
+  font-size: 14px;
+  color: var(--ink2);
+  line-height: 1.5;
+}
+
+.error-card strong { color: var(--ink); }
+
+/* ── BOTTOM NAV HINT ── */
+.app-footer {
+  padding: 10px 20px max(16px, env(safe-area-inset-bottom));
+  text-align: center;
+  font-size: 11px;
+  color: var(--ink3);
+  font-family: 'DM Mono', monospace;
+  flex-shrink: 0;
+}
+
+
+/* ── BOARD ID SOLO ── */
+.id-row-single {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.id-chip-solo {
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 10px 28px;
+  text-align: center;
+  min-width: 120px;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── DARK MODE ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:    #0F0F0E;
+    --card:  #1A1A19;
+    --ink:   #F0EFE9;
+    --ink2:  #8A8980;
+    --ink3:  #4A4A45;
+    --line:  #252522;
+    --amber-bg: rgba(217,119,6,.15);
+    --red-bg:   rgba(220,38,38,.15);
+    --blue-bg:  rgba(29,78,216,.15);
+    --green-bg: rgba(21,128,61,.15);
+    --shadow:   0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+    --shadow-lg:0 8px 32px rgba(0,0,0,.4);
+  }
+  .brand-mark { background: #F0EFE9; }
+  .brand-mark svg path, .brand-mark svg circle, .brand-mark svg line { stroke: #0F0F0E !important; }
+  .num-input { background: #252522; border-color: #2E2E2B; color: var(--ink); }
+  .num-input:focus { background: #1A1A19; }
+  .btn-search { background: #F0EFE9; color: #0F0F0E; }
+  .btn-search:active { background: #ccc; }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 380px) {
+  .desc-main-text { font-size: 19px; }
+  .id-chip-value { font-size: 18px; }
+  .num-input { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <img src="data:image/png;base64,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" alt="ENERCON" class="brand-logo">
+</header>
+
+<div class="scroll-area">
+
+  <!-- SEARCH -->
+  <div class="search-card">
+    <div class="inputs-row">
+      <div class="field-wrap">
+        <span class="field-label">Code principal</span>
+        <input class="num-input" type="number" id="mainCode" placeholder="42" inputmode="numeric" min="0">
+      </div>
+      <div class="field-wrap">
+        <span class="field-label">Code secondaire</span>
+        <input class="num-input" type="number" id="subCode" placeholder="107" inputmode="numeric" min="0">
+      </div>
+      <button class="btn-search" onclick="searchFault()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <circle cx="11" cy="11" r="7.5"/>
+          <path d="m20 20-3.9-3.9"/>
+        </svg>
+        Chercher
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result">
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="1"/>
+          <path d="M9 12h6M9 16h4"/>
+        </svg>
+      </div>
+      <h2>Aucune recherche</h2>
+      <p>Entrez un code principal<br>et un code secondaire,<br>puis appuyez sur Chercher.</p>
+    </div>
+  </div>
+
+</div>
+
+<footer class="app-footer">ENERCON GmbH · Dreekamp 5 · 26605 Aurich</footer>
+
+<script>
+const faultDB = {
+  "0.0": {"main": "Turbine operational", "sub": "Turbine in operation", "board": "81", "type": "fault"},
+  "0.1": {"main": "Turbine operational", "sub": "Turbine starting", "board": "81", "type": "fault"},
+  "0.2": {"main": "Turbine operational", "sub": "Turbine operational", "board": "81", "type": "fault"},
+  "0.3": {"main": "Turbine operational", "sub": "Start lead-up", "board": "81", "type": "fault"},
+  "0.5": {"main": "Turbine operational", "sub": "Calibration of load control", "board": "81", "type": "fault"},
+  "0.8": {"main": "Turbine operational", "sub": "Turbine in operat. during maintenance", "board": "81", "type": "fault"},
+  "0.10": {"main": "Turbine operational", "sub": "Information / Warnings", "board": "81", "type": "info"},
+  "1.1": {"main": "Turbine stopped", "sub": "Control cabinet", "board": "81", "type": "fault"},
+  "1.3": {"main": "Turbine stopped", "sub": "Scada system (ENERCON)", "board": "81", "type": "fault"},
+  "1.4": {"main": "Turbine stopped", "sub": "Nacelle", "board": "83", "type": "fault"},
+  "1.6": {"main": "Turbine stopped", "sub": "Farm control", "board": "81", "type": "fault"},
+  "1.7": {"main": "Turbine stopped", "sub": "Scada system (customer)", "board": "81", "type": "fault"},
+  "1.8": {"main": "Turbine stopped", "sub": "Remote displays", "board": "81", "type": "fault"},
+  "1.21": {"main": "Turbine stopped", "sub": "Nacelle position (sector 1)", "board": "84", "type": "fault"},
+  "1.22": {"main": "Turbine stopped", "sub": "Nacelle position (sector 2)", "board": "84", "type": "fault"},
+  "1.30": {"main": "Turbine stopped", "sub": "VCS (normal stop)", "board": "30", "type": "fault"},
+  "1.31": {"main": "Turbine stopped", "sub": "VCS (high-speed stop)", "board": "30", "type": "fault"},
+  "2.1": {"main": "Lack of wind", "sub": "Wind speed too low", "board": "81", "type": "fault"},
+  "2.2": {"main": "Lack of wind", "sub": "Rotor speed too low", "board": "81", "type": "fault"},
+  "2.11": {"main": "Lack of wind", "sub": "Max. start wind speed reached", "board": "81", "type": "fault"},
+  "3.1": {"main": "Storm", "sub": "Peak wind speed", "board": "81", "type": "fault"},
+  "3.2": {"main": "Storm", "sub": "Average wind speed", "board": "81", "type": "fault"},
+  "3.3": {"main": "Storm", "sub": "Maximum blade angle", "board": "81", "type": "fault"},
+  "3.4": {"main": "Storm", "sub": "Average blade angle", "board": "81", "type": "fault"},
+  "4.0": {"main": "Shadow stop", "sub": "Active", "board": "81", "type": "fault"},
+  "4.11": {"main": "Shadow stop", "sub": "Light intensity too low sensor 1 (-)", "board": "81", "type": "warn"},
+  "4.12": {"main": "Shadow stop", "sub": "Light intensity too low sensor 2 (-)", "board": "81", "type": "warn"},
+  "4.13": {"main": "Shadow stop", "sub": "Light intensity too low sensor 3 (-)", "board": "81", "type": "warn"},
+  "4.21": {"main": "Shadow stop", "sub": "Light intensity too high sensor 1 (-)", "board": "81", "type": "warn"},
+  "4.22": {"main": "Shadow stop", "sub": "Light intensity too high sensor 2 (-)", "board": "81", "type": "warn"},
+  "4.23": {"main": "Shadow stop", "sub": "Light intensity too high sensor 3 (-)", "board": "81", "type": "warn"},
+  "5.1": {"main": "Blade defrosting", "sub": "Automatic", "board": "81", "type": "fault"},
+  "5.2": {"main": "Blade defrosting", "sub": "Manual", "board": "81", "type": "fault"},
+  "5.3": {"main": "Blade defrosting", "sub": "SCADA system", "board": "81", "type": "fault"},
+  "5.11": {"main": "Blade defrosting", "sub": "Automatic during operation", "board": "81", "type": "info"},
+  "5.12": {"main": "Blade defrosting", "sub": "Manual during operation", "board": "81", "type": "info"},
+  "5.13": {"main": "Blade defrosting", "sub": "SCADA system during operation", "board": "81", "type": "info"},
+  "5.19": {"main": "Blade defrosting", "sub": "During operation completed", "board": "81", "type": "info"},
+  "7.81": {"main": "Unauthorized access", "sub": "I/O-board control cabinet", "board": "81", "type": "fault"},
+  "7.83": {"main": "Unauthorized access", "sub": "I/O-board 1 nacelle", "board": "83", "type": "fault"},
+  "7.84": {"main": "Unauthorized access", "sub": "I/O-board 2 nacelle", "board": "84", "type": "fault"},
+  "7.85": {"main": "Unauthorized access", "sub": "I/O-board 3 nacelle", "board": "85", "type": "fault"},
+  "9.1": {"main": "Generator heating", "sub": "Isometer", "board": "81", "type": "fault"},
+  "9.3": {"main": "Generator heating", "sub": "Hygrostat inverter", "board": "81", "type": "fault"},
+  "9.4": {"main": "Generator heating", "sub": "Hygrostat rectifier", "board": "81", "type": "fault"},
+  "9.8": {"main": "Generator heating", "sub": "Manual", "board": "81", "type": "fault"},
+  "9.24": {"main": "Generator heating", "sub": "Duration too long (-)", "board": "81", "type": "warn"},
+  "9.62": {"main": "Generator heating", "sub": "Aborted", "board": "81", "type": "info"},
+  "10.1": {"main": "Emergency stop actuated", "sub": "Control cabinet", "board": "81", "type": "fault"},
+  "10.2": {"main": "Emergency stop actuated", "sub": "Nacelle", "board": "83", "type": "fault"},
+  "10.3": {"main": "Emergency stop actuated", "sub": "Tower", "board": "81", "type": "fault"},
+  "10.11": {"main": "Emergency stop actuated", "sub": "Blade A", "board": "17", "type": "fault"},
+  "10.12": {"main": "Emergency stop actuated", "sub": "Blade B", "board": "18", "type": "fault"},
+  "10.13": {"main": "Emergency stop actuated", "sub": "Blade C", "board": "19", "type": "fault"},
+  "14.1": {"main": "Ice detection", "sub": "Labko ice detector", "board": "83", "type": "fault"},
+  "14.4": {"main": "Ice detection", "sub": "Labko: Ice sensing faulty (14)", "board": "83", "type": "warn"},
+  "14.5": {"main": "Ice detection", "sub": "Labko: Temperature meas. faulty (14)", "board": "83", "type": "warn"},
+  "14.6": {"main": "Ice detection", "sub": "Labko: Heating faulty (14)", "board": "83", "type": "warn"},
+  "14.9": {"main": "Ice detection", "sub": "No ice-foundation", "board": "84", "type": "info"},
+  "14.10": {"main": "Ice detection", "sub": "Turbine stopped (-)", "board": "83/84", "type": "warn"},
+  "14.11": {"main": "Ice detection", "sub": "Rotor (power measurement)", "board": "84", "type": "fault"},
+  "14.12": {"main": "Ice detection", "sub": "Anemometer (power measurement)", "board": "84", "type": "fault"},
+  "14.13": {"main": "Ice detection", "sub": "Rotor (blade angle)", "board": "84", "type": "fault"},
+  "14.14": {"main": "Ice detection", "sub": "Anemometer (blade angle)", "board": "84", "type": "fault"},
+  "14.15": {"main": "Ice detection", "sub": "Farm ice-foundation level reached", "board": "84", "type": "fault"},
+  "14.20": {"main": "Ice detection", "sub": "Abandon nacelle positioning", "board": "84", "type": "fault"},
+  "14.21": {"main": "Ice detection", "sub": "Nacelle positioned", "board": "84", "type": "info"},
+  "14.81": {"main": "Ice detection", "sub": "Power opt. curve under toler. (US) (-)", "board": "84", "type": "warn"},
+  "14.82": {"main": "Ice detection", "sub": "Power opt. curve above toler. (US) (-)", "board": "84", "type": "warn"},
+  "14.83": {"main": "Ice detection", "sub": "Noise opt. curve under toler. (US) (-)", "board": "84", "type": "warn"},
+  "14.84": {"main": "Ice detection", "sub": "Noise opt. curve above toler. (US) (-)", "board": "84", "type": "warn"},
+  "15.11": {"main": "Turbine moist", "sub": "Inverter 1.1", "board": "33", "type": "fault"},
+  "15.12": {"main": "Turbine moist", "sub": "Inverter 1.2", "board": "33", "type": "fault"},
+  "15.13": {"main": "Turbine moist", "sub": "Inverter 1.3", "board": "33", "type": "fault"},
+  "15.14": {"main": "Turbine moist", "sub": "Inverter 1.4", "board": "33", "type": "fault"},
+  "15.15": {"main": "Turbine moist", "sub": "Inverter 1.5", "board": "33", "type": "fault"},
+  "15.16": {"main": "Turbine moist", "sub": "Inverter 1.6", "board": "33", "type": "fault"},
+  "15.17": {"main": "Turbine moist", "sub": "Inverter 1.7", "board": "33", "type": "fault"},
+  "15.18": {"main": "Turbine moist", "sub": "Inverter 1.8", "board": "33", "type": "fault"},
+  "15.19": {"main": "Turbine moist", "sub": "Several inverters system 1", "board": "33", "type": "fault"},
+  "15.21": {"main": "Turbine moist", "sub": "Inverter 2.1", "board": "34", "type": "fault"},
+  "15.22": {"main": "Turbine moist", "sub": "Inverter 2.2", "board": "34", "type": "fault"},
+  "15.23": {"main": "Turbine moist", "sub": "Inverter 2.3", "board": "34", "type": "fault"},
+  "15.24": {"main": "Turbine moist", "sub": "Inverter 2.4", "board": "34", "type": "fault"},
+  "15.25": {"main": "Turbine moist", "sub": "Inverter 2.5", "board": "34", "type": "fault"},
+  "15.26": {"main": "Turbine moist", "sub": "Inverter 2.6", "board": "34", "type": "fault"},
+  "15.27": {"main": "Turbine moist", "sub": "Inverter 2.7", "board": "34", "type": "fault"},
+  "15.28": {"main": "Turbine moist", "sub": "Inverter 2.8", "board": "34", "type": "fault"},
+  "15.29": {"main": "Turbine moist", "sub": "Several inverters system 2", "board": "34", "type": "fault"},
+  "15.31": {"main": "Turbine moist", "sub": "Inverter 3.1", "board": "35", "type": "fault"},
+  "15.32": {"main": "Turbine moist", "sub": "Inverter 3.2", "board": "35", "type": "fault"},
+  "15.33": {"main": "Turbine moist", "sub": "Inverter 3.3", "board": "35", "type": "fault"},
+  "15.34": {"main": "Turbine moist", "sub": "Inverter 3.4", "board": "35", "type": "fault"},
+  "15.35": {"main": "Turbine moist", "sub": "Inverter 3.5", "board": "35", "type": "fault"},
+  "15.36": {"main": "Turbine moist", "sub": "Inverter 3.6", "board": "35", "type": "fault"},
+  "15.37": {"main": "Turbine moist", "sub": "Inverter 3.7", "board": "35", "type": "fault"},
+  "15.38": {"main": "Turbine moist", "sub": "Inverter 3.8", "board": "35", "type": "fault"},
+  "15.39": {"main": "Turbine moist", "sub": "Several inverters system 3", "board": "35", "type": "fault"},
+  "15.41": {"main": "Turbine moist", "sub": "Inverter 4.1", "board": "36", "type": "fault"},
+  "15.42": {"main": "Turbine moist", "sub": "Inverter 4.2", "board": "36", "type": "fault"},
+  "15.43": {"main": "Turbine moist", "sub": "Inverter 4.3", "board": "36", "type": "fault"},
+  "15.44": {"main": "Turbine moist", "sub": "Inverter 4.4", "board": "36", "type": "fault"},
+  "15.45": {"main": "Turbine moist", "sub": "Inverter 4.5", "board": "36", "type": "fault"},
+  "15.46": {"main": "Turbine moist", "sub": "Inverter 4.6", "board": "36", "type": "fault"},
+  "15.47": {"main": "Turbine moist", "sub": "Inverter 4.7", "board": "36", "type": "fault"},
+  "15.48": {"main": "Turbine moist", "sub": "Inverter 4.8", "board": "36", "type": "fault"},
+  "15.49": {"main": "Turbine moist", "sub": "Several inverters system 4", "board": "36", "type": "fault"},
+  "15.111": {"main": "Turbine moist", "sub": "Rectifier system 1", "board": "81", "type": "fault"},
+  "15.112": {"main": "Turbine moist", "sub": "Rectifier system 2", "board": "81", "type": "fault"},
+  "15.113": {"main": "Turbine moist", "sub": "Rectifier system 3", "board": "81", "type": "fault"},
+  "15.114": {"main": "Turbine moist", "sub": "Rectifier system 4", "board": "81", "type": "fault"},
+  "16.0": {"main": "Overspeed-switch test", "sub": "Test in process", "board": "81", "type": "fault"},
+  "16.1": {"main": "Overspeed-switch test", "sub": "Blade A", "board": "17", "type": "fault"},
+  "16.2": {"main": "Overspeed-switch test", "sub": "Blade B", "board": "18", "type": "fault"},
+  "16.3": {"main": "Overspeed-switch test", "sub": "Blade C", "board": "19", "type": "fault"},
+  "16.4": {"main": "Overspeed-switch test", "sub": "Blade A+B", "board": "17/18", "type": "fault"},
+  "16.5": {"main": "Overspeed-switch test", "sub": "Blade A+C", "board": "17/19", "type": "fault"},
+  "16.6": {"main": "Overspeed-switch test", "sub": "Blade B+C", "board": "18/19", "type": "fault"},
+  "16.7": {"main": "Overspeed-switch test", "sub": "Blade A+B+C", "board": "17/18/19", "type": "fault"},
+  "20.18": {"main": "Wind measurement faulty", "sub": "Overflow wind direction correction (1)", "board": "84", "type": "warn"},
+  "20.21": {"main": "Wind measurement faulty", "sub": "Differece wind speed 1 and 2", "board": "84", "type": "fault"},
+  "20.22": {"main": "Wind measurement faulty", "sub": "Differece wind direction 1 and 2", "board": "84", "type": "fault"},
+  "20.140": {"main": "Wind measurement faulty", "sub": "Unknown anemometer 1", "board": "84", "type": "fault"},
+  "20.162": {"main": "Wind measurement faulty", "sub": "Wind direction 1 > 165° right", "board": "84", "type": "fault"},
+  "20.163": {"main": "Wind measurement faulty", "sub": "Wind direction 1 > 165° left", "board": "84", "type": "fault"},
+  "20.164": {"main": "Wind measurement faulty", "sub": "Constant wind direction 1", "board": "84", "type": "fault"},
+  "20.165": {"main": "Wind measurement faulty", "sub": "Overflow wind direction 1", "board": "84", "type": "fault"},
+  "20.171": {"main": "Wind measurement faulty", "sub": "Wind speed 1 too low", "board": "84", "type": "fault"},
+  "20.172": {"main": "Wind measurement faulty", "sub": "No wind speed 1", "board": "84", "type": "fault"},
+  "20.175": {"main": "Wind measurement faulty", "sub": "Overflow wind speed 1", "board": "84", "type": "fault"},
+  "20.240": {"main": "Wind measurement faulty", "sub": "Unknown anemometer 2", "board": "84", "type": "fault"},
+  "20.262": {"main": "Wind measurement faulty", "sub": "Wind direction 2 > 165° right", "board": "84", "type": "fault"},
+  "20.263": {"main": "Wind measurement faulty", "sub": "Wind direction 2 > 165° left", "board": "84", "type": "fault"},
+  "20.264": {"main": "Wind measurement faulty", "sub": "Constant wind direction 2", "board": "84", "type": "fault"},
+  "20.265": {"main": "Wind measurement faulty", "sub": "Overflow wind direction 2", "board": "84", "type": "fault"},
+  "20.271": {"main": "Wind measurement faulty", "sub": "Wind speed 2 too low", "board": "84", "type": "fault"},
+  "20.272": {"main": "Wind measurement faulty", "sub": "No wind speed 2", "board": "84", "type": "fault"},
+  "20.275": {"main": "Wind measurement faulty", "sub": "Overflow wind speed 2", "board": "84", "type": "fault"},
+  "21.1": {"main": "Cable twisted", "sub": "Left (2-3 turns)", "board": "84", "type": "fault"},
+  "21.2": {"main": "Cable twisted", "sub": "Right (2-3 turns)", "board": "84", "type": "fault"},
+  "21.3": {"main": "Cable twisted", "sub": "Left (>3 turns)", "board": "84", "type": "fault"},
+  "21.4": {"main": "Cable twisted", "sub": "Right (>3 turns)", "board": "84", "type": "fault"},
+  "21.21": {"main": "Cable twisted", "sub": "Left (manual)", "board": "84", "type": "fault"},
+  "21.22": {"main": "Cable twisted", "sub": "Right (manual)", "board": "84", "type": "fault"},
+  "22.1": {"main": "Yaw control fault", "sub": "Limit switch left", "board": "84", "type": "fault"},
+  "22.2": {"main": "Yaw control fault", "sub": "Limit switch right", "board": "84", "type": "fault"},
+  "22.3": {"main": "Yaw control fault", "sub": "Untwist time too long", "board": "84", "type": "fault"},
+  "22.9": {"main": "Yaw control fault", "sub": "Yaw lock by mains / UPS", "board": "84", "type": "fault"},
+  "22.10": {"main": "Yaw control fault", "sub": "Yaw lock activated", "board": "84", "type": "fault"},
+  "22.11": {"main": "Yaw control fault", "sub": "Yaw lock by yaw inverter", "board": "84", "type": "fault"},
+  "22.19": {"main": "Yaw control fault", "sub": "Wrong shaft end (7)", "board": "84", "type": "warn"},
+  "22.20": {"main": "Yaw control fault", "sub": "Braking torque too low (7)", "board": "84", "type": "warn"},
+  "22.21": {"main": "Yaw control fault", "sub": "Cable twisted too often", "board": "84", "type": "fault"},
+  "22.40": {"main": "Yaw control fault", "sub": "No yawing", "board": "84", "type": "fault"},
+  "22.41": {"main": "Yaw control fault", "sub": "No pulses from yaw sensor 1 (7)", "board": "84", "type": "warn"},
+  "22.42": {"main": "Yaw control fault", "sub": "Too few pulses from yaw sensor 1 (7)", "board": "84", "type": "warn"},
+  "22.43": {"main": "Yaw control fault", "sub": "Too many pulses from yaw sensor 1 (7)", "board": "84", "type": "warn"},
+  "22.44": {"main": "Yaw control fault", "sub": "No pulses from yaw sensor 2 (7)", "board": "84", "type": "warn"},
+  "22.45": {"main": "Yaw control fault", "sub": "Too few pulses from yaw sensor 2 (7)", "board": "84", "type": "warn"},
+  "22.46": {"main": "Yaw control fault", "sub": "Too many pulses from yaw sensor 2 (7)", "board": "84", "type": "warn"},
+  "22.47": {"main": "Yaw control fault", "sub": "No pulses from yaw sensor 1 + 2", "board": "84", "type": "fault"},
+  "22.48": {"main": "Yaw control fault", "sub": "Too few pulses from yaw sensor 1 + 2", "board": "84", "type": "fault"},
+  "22.49": {"main": "Yaw control fault", "sub": "Too many pulses from yaw sensor 1 + 2", "board": "84", "type": "fault"},
+  "22.50": {"main": "Yaw control fault", "sub": "Malfunction yaw sensor 1 + 2", "board": "84", "type": "fault"},
+  "22.51": {"main": "Yaw control fault", "sub": "No change of nacelle position", "board": "84", "type": "fault"},
+  "22.52": {"main": "Yaw control fault", "sub": "Change of nacelle position faulty", "board": "84", "type": "fault"},
+  "22.54": {"main": "Yaw control fault", "sub": "Change of nacelle pos. > 50° / 10sec.(-)", "board": "84", "type": "warn"},
+  "22.55": {"main": "Yaw control fault", "sub": "Change of nacelle pos. > 90° / 10sec.", "board": "84", "type": "fault"},
+  "22.56": {"main": "Yaw control fault", "sub": "Change of nacelle pos, > 180° / min.", "board": "84", "type": "fault"},
+  "22.59": {"main": "Yaw control fault", "sub": "Diff. Yaw angle - yaw angle external", "board": "84", "type": "fault"},
+  "22.92": {"main": "Yaw control fault", "sub": "Yaw lock by Load Control", "board": "84", "type": "info"},
+  "22.93": {"main": "Yaw control fault", "sub": "Pulses from sensor 1 with brakes closed", "board": "84", "type": "info"},
+  "22.94": {"main": "Yaw control fault", "sub": "Pulses from sensor 2 with brakes closed", "board": "84", "type": "info"},
+  "25.98": {"main": "Fault yaw inverter", "sub": "Inverter not operational (4)", "board": "84", "type": "warn"},
+  "25.101": {"main": "Fault yaw inverter", "sub": "Cross short circuit system 1", "board": "51", "type": "fault"},
+  "25.102": {"main": "Fault yaw inverter", "sub": "Overcurrent U system 1", "board": "51", "type": "fault"},
+  "25.103": {"main": "Fault yaw inverter", "sub": "Overcurrent V system 1", "board": "51", "type": "fault"},
+  "25.104": {"main": "Fault yaw inverter", "sub": "Overcurrent W system 1", "board": "51", "type": "fault"},
+  "25.105": {"main": "Fault yaw inverter", "sub": "Earth contact system 1", "board": "51", "type": "fault"},
+  "25.106": {"main": "Fault yaw inverter", "sub": "Current measurement system 1", "board": "51", "type": "fault"},
+  "25.107": {"main": "Fault yaw inverter", "sub": "Overvoltage DC-link system 1", "board": "51", "type": "fault"},
+  "25.108": {"main": "Fault yaw inverter", "sub": "IGBT-driver system 1", "board": "51", "type": "fault"},
+  "25.109": {"main": "Fault yaw inverter", "sub": "Charging error system 1", "board": "51", "type": "fault"},
+  "25.110": {"main": "Fault yaw inverter", "sub": "Overload chopper system 1", "board": "51", "type": "fault"},
+  "25.111": {"main": "Fault yaw inverter", "sub": "Thermo switch heatsink IGBT system 1", "board": "51", "type": "fault"},
+  "25.112": {"main": "Fault yaw inverter", "sub": "Thermo switch heats. rectif. system 1", "board": "51", "type": "fault"},
+  "25.113": {"main": "Fault yaw inverter", "sub": "Overtemp. heatsink IGBT system 1", "board": "51", "type": "fault"},
+  "25.114": {"main": "Fault yaw inverter", "sub": "Overtemp. heatsink rectif. system 1", "board": "51", "type": "fault"},
+  "25.115": {"main": "Fault yaw inverter", "sub": "Fuse F1 - F3", "board": "51", "type": "fault"},
+  "25.119": {"main": "Fault yaw inverter", "sub": "No data from slave (serial)", "board": "51", "type": "fault"},
+  "25.122": {"main": "Fault yaw inverter", "sub": "Supply Motor Control 1", "board": "51", "type": "fault"},
+  "25.123": {"main": "Fault yaw inverter", "sub": "Malfunction yaw sensor 3 system 1", "board": "51", "type": "fault"},
+  "25.124": {"main": "Fault yaw inverter", "sub": "Malfunction yaw sensor 4 system 1", "board": "51", "type": "fault"},
+  "25.125": {"main": "Fault yaw inverter", "sub": "EEPROM faulty Motor Control 1", "board": "51", "type": "fault"},
+  "25.131": {"main": "Fault yaw inverter", "sub": "DC-link voltage instabil system 1", "board": "51", "type": "fault"},
+  "25.132": {"main": "Fault yaw inverter", "sub": "Wrong rotation direction system 1", "board": "51", "type": "fault"},
+  "25.133": {"main": "Fault yaw inverter", "sub": "Brake force too low system 1", "board": "51", "type": "fault"},
+  "25.134": {"main": "Fault yaw inverter", "sub": "Overspeed system 1", "board": "51", "type": "fault"},
+  "25.135": {"main": "Fault yaw inverter", "sub": "No output current system 1", "board": "51", "type": "fault"},
+  "25.136": {"main": "Fault yaw inverter", "sub": "Yawing moment too low system 1", "board": "51", "type": "fault"},
+  "25.137": {"main": "Fault yaw inverter", "sub": "Difference phase current system 1", "board": "51", "type": "fault"},
+  "25.151": {"main": "Fault yaw inverter", "sub": "Overtemp. brake 1 system 1", "board": "51", "type": "fault"},
+  "25.152": {"main": "Fault yaw inverter", "sub": "Overtemp. brake 3 system 1", "board": "51", "type": "fault"},
+  "25.153": {"main": "Fault yaw inverter", "sub": "Overtemp. brake 5 system 1", "board": "51", "type": "fault"},
+  "25.154": {"main": "Fault yaw inverter", "sub": "Overtemp. brake 7 system 1", "board": "51", "type": "fault"},
+  "25.155": {"main": "Fault yaw inverter", "sub": "Overtemp. brake 9 system 1", "board": "51", "type": "fault"},
+  "25.156": {"main": "Fault yaw inverter", "sub": "Overtemp. brake 11 system 1", "board": "51", "type": "fault"},
+  "25.201": {"main": "Fault yaw inverter", "sub": "Cross short circuit system 2", "board": "52", "type": "fault"},
+  "25.202": {"main": "Fault yaw inverter", "sub": "Overcurrent U system 2", "board": "52", "type": "fault"},
+  "25.203": {"main": "Fault yaw inverter", "sub": "Overcurrent V system 2", "board": "52", "type": "fault"},
+  "25.204": {"main": "Fault yaw inverter", "sub": "Overcurrent W system 2", "board": "52", "type": "fault"},
+  "25.205": {"main": "Fault yaw inverter", "sub": "Earth contact system 2", "board": "52", "type": "fault"},
+  "25.206": {"main": "Fault yaw inverter", "sub": "Current measurement system 2", "board": "52", "type": "fault"},
+  "25.207": {"main": "Fault yaw inverter", "sub": "Overvoltage DC-link system 2", "board": "52", "type": "fault"},
+  "25.208": {"main": "Fault yaw inverter", "sub": "IGBT-driver system 2", "board": "52", "type": "fault"},
+  "25.209": {"main": "Fault yaw inverter", "sub": "Charging error system 2", "board": "52", "type": "fault"},
+  "25.210": {"main": "Fault yaw inverter", "sub": "Overload chopper system 2", "board": "52", "type": "fault"},
+  "25.211": {"main": "Fault yaw inverter", "sub": "Thermo switch heatsink IGBT system 2", "board": "52", "type": "fault"},
+  "25.213": {"main": "Fault yaw inverter", "sub": "Overtemp. heatsink IGBT system 2", "board": "52", "type": "fault"},
+  "25.219": {"main": "Fault yaw inverter", "sub": "No data from master (serial)", "board": "52", "type": "fault"},
+  "25.222": {"main": "Fault yaw inverter", "sub": "Supply Motor Control 2", "board": "52", "type": "fault"},
+  "25.223": {"main": "Fault yaw inverter", "sub": "Malfunction yaw sensor 5 system 2", "board": "52", "type": "fault"},
+  "25.224": {"main": "Fault yaw inverter", "sub": "Malfunction yaw sensor 6 system 2", "board": "52", "type": "fault"},
+  "25.225": {"main": "Fault yaw inverter", "sub": "EEPROM faulty motor control 2", "board": "52", "type": "fault"},
+  "25.230": {"main": "Fault yaw inverter", "sub": "Program incompatible master / slave", "board": "52", "type": "fault"},
+  "25.231": {"main": "Fault yaw inverter", "sub": "DC-link voltage instabil system 2", "board": "52", "type": "fault"},
+  "25.232": {"main": "Fault yaw inverter", "sub": "Wrong rotation direction system 2", "board": "52", "type": "fault"},
+  "25.233": {"main": "Fault yaw inverter", "sub": "Brake force too low system 2", "board": "52", "type": "fault"},
+  "25.234": {"main": "Fault yaw inverter", "sub": "Overspeed system 2", "board": "52", "type": "fault"},
+  "25.235": {"main": "Fault yaw inverter", "sub": "No output current system 2", "board": "52", "type": "fault"},
+  "25.236": {"main": "Fault yaw inverter", "sub": "Yawing moment too low system 2", "board": "52", "type": "fault"},
+  "25.237": {"main": "Fault yaw inverter", "sub": "Difference phase current system 2", "board": "52", "type": "fault"},
+  "25.251": {"main": "Fault yaw inverter", "sub": "Overtemp. brake 2 system 2", "board": "52", "type": "fault"},
+  "25.252": {"main": "Fault yaw inverter", "sub": "Overtemp. brake 4 system 2", "board": "52", "type": "fault"},
+  "25.253": {"main": "Fault yaw inverter", "sub": "Overtemp. brake 6 system 2", "board": "52", "type": "fault"},
+  "25.254": {"main": "Fault yaw inverter", "sub": "Overtemp. brake 8 system 2", "board": "52", "type": "fault"},
+  "25.255": {"main": "Fault yaw inverter", "sub": "Overtemp. brake 1 system 2", "board": "52", "type": "fault"},
+  "25.256": {"main": "Fault yaw inverter", "sub": "Overtemp. brake 12 system 2", "board": "52", "type": "fault"},
+  "26.1": {"main": "Fault fan inverter", "sub": "Cross short circuit", "board": "55", "type": "fault"},
+  "26.2": {"main": "Fault fan inverter", "sub": "Overcurrent U", "board": "55", "type": "fault"},
+  "26.3": {"main": "Fault fan inverter", "sub": "Overcurrent V", "board": "55", "type": "fault"},
+  "26.4": {"main": "Fault fan inverter", "sub": "Overcurrent W", "board": "55", "type": "fault"},
+  "26.5": {"main": "Fault fan inverter", "sub": "Earth contact", "board": "55", "type": "fault"},
+  "26.6": {"main": "Fault fan inverter", "sub": "Current measurement", "board": "55", "type": "fault"},
+  "26.7": {"main": "Fault fan inverter", "sub": "Overvoltage DC-link", "board": "55", "type": "fault"},
+  "26.8": {"main": "Fault fan inverter", "sub": "IGBT-driver", "board": "55", "type": "fault"},
+  "26.9": {"main": "Fault fan inverter", "sub": "Charging error DC-link", "board": "55", "type": "fault"},
+  "26.10": {"main": "Fault fan inverter", "sub": "Overload chopper", "board": "55", "type": "fault"},
+  "26.11": {"main": "Fault fan inverter", "sub": "Thermo switch heatsink IGBT", "board": "55", "type": "fault"},
+  "26.12": {"main": "Fault fan inverter", "sub": "Thermo switch heatsink rectifier", "board": "55", "type": "fault"},
+  "26.13": {"main": "Fault fan inverter", "sub": "Overtemp. heatsink IGBT", "board": "55", "type": "fault"},
+  "26.14": {"main": "Fault fan inverter", "sub": "Overtemp. heatsink rectifier", "board": "55", "type": "fault"},
+  "26.15": {"main": "Fault fan inverter", "sub": "Fuse F1 - F3", "board": "55", "type": "fault"},
+  "26.22": {"main": "Fault fan inverter", "sub": "Supply Motor Control", "board": "51", "type": "fault"},
+  "26.23": {"main": "Fault fan inverter", "sub": "Malfunction speed sensor", "board": "51", "type": "fault"},
+  "26.25": {"main": "Fault fan inverter", "sub": "EEPROM faulty", "board": "51", "type": "fault"},
+  "26.31": {"main": "Fault fan inverter", "sub": "DC-link voltage instabil", "board": "51", "type": "fault"},
+  "26.100": {"main": "Fault fan inverter", "sub": "Communication error inverter 1", "board": "56", "type": "warn"},
+  "26.101": {"main": "Fault fan inverter", "sub": "Parameterization failed inverter 1", "board": "56", "type": "warn"},
+  "26.102": {"main": "Fault fan inverter", "sub": "Loss of parameters inverter 1", "board": "56", "type": "warn"},
+  "26.103": {"main": "Fault fan inverter", "sub": "Unknown fan type inverter 1", "board": "56", "type": "warn"},
+  "26.104": {"main": "Fault fan inverter", "sub": "Frequency too low inverter 1", "board": "56", "type": "warn"},
+  "26.105": {"main": "Fault fan inverter", "sub": "Frequency too high inverter 1", "board": "56", "type": "warn"},
+  "26.106": {"main": "Fault fan inverter", "sub": "Overcurrent inverter 1", "board": "56", "type": "warn"},
+  "26.107": {"main": "Fault fan inverter", "sub": "Overvoltage DC-link inverter 1", "board": "56", "type": "warn"},
+  "26.108": {"main": "Fault fan inverter", "sub": "Overvoltage mains supply inverter 1", "board": "56", "type": "warn"},
+  "26.109": {"main": "Fault fan inverter", "sub": "Undervoltage mains supply inverter 1", "board": "56", "type": "warn"},
+  "26.110": {"main": "Fault fan inverter", "sub": "Phase failure mains supply inverter 1", "board": "56", "type": "warn"},
+  "26.111": {"main": "Fault fan inverter", "sub": "Charging error DC-link inverter 1", "board": "56", "type": "warn"},
+  "26.112": {"main": "Fault fan inverter", "sub": "Unsymmetrie phase current inverter 1", "board": "56", "type": "warn"},
+  "26.113": {"main": "Fault fan inverter", "sub": "Overtemperature heatsink inverter 1", "board": "56", "type": "warn"},
+  "26.120": {"main": "Fault fan inverter", "sub": "Frequency reduction (motortemp) inv. 1", "board": "56", "type": "warn"},
+  "26.121": {"main": "Fault fan inverter", "sub": "Overtemperature motor 1 inverter 1", "board": "56", "type": "warn"},
+  "26.122": {"main": "Fault fan inverter", "sub": "Overtemperature motor 2 inverter 1", "board": "56", "type": "warn"},
+  "26.123": {"main": "Fault fan inverter", "sub": "Overtemperature motor 3 inverter 1", "board": "56", "type": "warn"},
+  "26.124": {"main": "Fault fan inverter", "sub": "Overtemperature motor 4 inverter 1", "board": "56", "type": "warn"},
+  "26.125": {"main": "Fault fan inverter", "sub": "Overtemperature motor 5 inverter 1", "board": "56", "type": "warn"},
+  "26.126": {"main": "Fault fan inverter", "sub": "Overtemperature several motors inv. 1", "board": "56", "type": "warn"},
+  "26.200": {"main": "Fault fan inverter", "sub": "Communication error inverter 2", "board": "57", "type": "warn"},
+  "26.201": {"main": "Fault fan inverter", "sub": "Parameterization failed inverter 2", "board": "57", "type": "warn"},
+  "26.202": {"main": "Fault fan inverter", "sub": "Loss of parameters inverter 2", "board": "57", "type": "warn"},
+  "26.203": {"main": "Fault fan inverter", "sub": "Unknown fan type inverter 2", "board": "57", "type": "warn"},
+  "26.204": {"main": "Fault fan inverter", "sub": "Frequency too low inverter 2", "board": "57", "type": "warn"},
+  "26.205": {"main": "Fault fan inverter", "sub": "Frequency too high inverter 2", "board": "57", "type": "warn"},
+  "26.206": {"main": "Fault fan inverter", "sub": "Overcurrent inverter 2", "board": "57", "type": "warn"},
+  "26.207": {"main": "Fault fan inverter", "sub": "Overvoltage DC-link inverter 2", "board": "57", "type": "warn"},
+  "26.208": {"main": "Fault fan inverter", "sub": "Overvoltage mains supply inverter 2", "board": "57", "type": "warn"},
+  "26.209": {"main": "Fault fan inverter", "sub": "Undervoltage mains supply inverter 2", "board": "57", "type": "warn"},
+  "26.210": {"main": "Fault fan inverter", "sub": "Phase failure mains supply inverter 2", "board": "57", "type": "warn"},
+  "26.211": {"main": "Fault fan inverter", "sub": "Charging error DC-link inverter 2", "board": "57", "type": "warn"},
+  "26.212": {"main": "Fault fan inverter", "sub": "Unsymmetrie phase current inverter 2", "board": "57", "type": "warn"},
+  "26.213": {"main": "Fault fan inverter", "sub": "Overtemperature heatsink inverter 2", "board": "57", "type": "warn"},
+  "26.220": {"main": "Fault fan inverter", "sub": "Frequency reduction (motortemp) inv. 2", "board": "57", "type": "warn"},
+  "26.221": {"main": "Fault fan inverter", "sub": "Overtemperature motor 1 inverter 2", "board": "57", "type": "warn"},
+  "26.222": {"main": "Fault fan inverter", "sub": "Overtemperature motor 2 inverter 2", "board": "57", "type": "warn"},
+  "26.223": {"main": "Fault fan inverter", "sub": "Overtemperature motor 3 inverter 2", "board": "57", "type": "warn"},
+  "26.224": {"main": "Fault fan inverter", "sub": "Overtemperature motor 4 inverter 2", "board": "57", "type": "warn"},
+  "26.225": {"main": "Fault fan inverter", "sub": "Overtemperature motor 5 inverter 2", "board": "57", "type": "warn"},
+  "26.226": {"main": "Fault fan inverter", "sub": "Overtemperature several motors inv. 2", "board": "57", "type": "warn"},
+  "29.112": {"main": "Anemometer Interface", "sub": "Timeout data transmiss. us-sensor 1(4)", "board": "61", "type": "warn"},
+  "29.121": {"main": "Anemometer Interface", "sub": "Wind speed 1 invariable", "board": "61", "type": "fault"},
+  "29.122": {"main": "Anemometer Interface", "sub": "Wind direction 1 invariable", "board": "61", "type": "fault"},
+  "29.131": {"main": "Anemometer Interface", "sub": "Error data transmission us-sensor 1", "board": "61", "type": "fault"},
+  "29.132": {"main": "Anemometer Interface", "sub": "Timeout data transmission us-sensor 1", "board": "61", "type": "fault"},
+  "29.133": {"main": "Anemometer Interface", "sub": "Incorrect data from us-sensor 1", "board": "61", "type": "fault"},
+  "29.141": {"main": "Anemometer Interface", "sub": "Fault 1 ultra sonic sensor 1", "board": "61", "type": "fault"},
+  "29.142": {"main": "Anemometer Interface", "sub": "Fault 2 ultra sonic sensor 1", "board": "61", "type": "fault"},
+  "29.143": {"main": "Anemometer Interface", "sub": "Fault 3 ultra sonic sensor 1", "board": "61", "type": "fault"},
+  "29.144": {"main": "Anemometer Interface", "sub": "Fault 4 ultra sonic sensor 1", "board": "61", "type": "fault"},
+  "29.145": {"main": "Anemometer Interface", "sub": "Fault 5 ultra sonic sensor 1", "board": "61", "type": "fault"},
+  "29.151": {"main": "Anemometer Interface", "sub": "Fault 1 ultra sonic sensor 1 (4)", "board": "61", "type": "warn"},
+  "29.212": {"main": "Anemometer Interface", "sub": "Timeout data transmiss. us-sensor 2(4)", "board": "62", "type": "warn"},
+  "29.221": {"main": "Anemometer Interface", "sub": "Wind speed 2 invariable", "board": "62", "type": "fault"},
+  "29.222": {"main": "Anemometer Interface", "sub": "Wind direction 2 invariable", "board": "62", "type": "fault"},
+  "29.231": {"main": "Anemometer Interface", "sub": "Error data transmission us-sensor 2", "board": "62", "type": "fault"},
+  "29.232": {"main": "Anemometer Interface", "sub": "Timeout data transmission us-sensor 2", "board": "62", "type": "fault"},
+  "29.233": {"main": "Anemometer Interface", "sub": "Incorrect data from us-sensor 2", "board": "62", "type": "fault"},
+  "29.241": {"main": "Anemometer Interface", "sub": "Fault 1 ultra sonic sensor 2", "board": "62", "type": "fault"},
+  "29.242": {"main": "Anemometer Interface", "sub": "Fault 2 ultra sonic sensor 2", "board": "62", "type": "fault"},
+  "29.243": {"main": "Anemometer Interface", "sub": "Fault 3 ultra sonic sensor 2", "board": "62", "type": "fault"},
+  "29.244": {"main": "Anemometer Interface", "sub": "Fault 4 ultra sonic sensor 2", "board": "62", "type": "fault"},
+  "29.245": {"main": "Anemometer Interface", "sub": "Fault 5 ultra sonic sensor 2", "board": "62", "type": "fault"},
+  "29.251": {"main": "Anemometer Interface", "sub": "Fault 1 ultra sonic sensor 2 (4)", "board": "62", "type": "warn"},
+  "31.1": {"main": "Tower oscillation", "sub": "Transversal oscillation", "board": "83", "type": "fault"},
+  "31.2": {"main": "Tower oscillation", "sub": "Longitudinal oscillation", "board": "83", "type": "fault"},
+  "31.3": {"main": "Tower oscillation", "sub": "Transversal sensor malfunction", "board": "83", "type": "fault"},
+  "31.4": {"main": "Tower oscillation", "sub": "Longitudinal sensor malfunction", "board": "83", "type": "fault"},
+  "31.11": {"main": "Tower oscillation", "sub": "Transversal oscillation (max.)", "board": "83", "type": "fault"},
+  "31.12": {"main": "Tower oscillation", "sub": "Longitudinal oscillation (max.)", "board": "83", "type": "fault"},
+  "31.32": {"main": "Tower oscillation", "sub": "Longitudinal oscill. (low wind speed)", "board": "81", "type": "info"},
+  "40.1": {"main": "Rotor overspeed", "sub": "Measurement pitch control", "board": "17", "type": "fault"},
+  "40.2": {"main": "Rotor overspeed", "sub": "Measurement I/O-board", "board": "83", "type": "fault"},
+  "41.1": {"main": "Rotor overspeed switch", "sub": "Blade A", "board": "17", "type": "fault"},
+  "41.2": {"main": "Rotor overspeed switch", "sub": "Blade B", "board": "18", "type": "fault"},
+  "41.3": {"main": "Rotor overspeed switch", "sub": "Blade C", "board": "19", "type": "fault"},
+  "41.4": {"main": "Rotor overspeed switch", "sub": "Blade A+B", "board": "17/18", "type": "fault"},
+  "41.5": {"main": "Rotor overspeed switch", "sub": "Blade A+C", "board": "17/19", "type": "fault"},
+  "41.6": {"main": "Rotor overspeed switch", "sub": "Blade B+C", "board": "18/19", "type": "fault"},
+  "41.7": {"main": "Rotor overspeed switch", "sub": "Blade A+B+C", "board": "17/18/19", "type": "fault"},
+  "42.1": {"main": "Pitch control error", "sub": "Speed after stop too high", "board": "81", "type": "fault"},
+  "42.2": {"main": "Pitch control error", "sub": "Blade angle > 50°", "board": "81", "type": "fault"},
+  "42.3": {"main": "Pitch control error", "sub": "Transformer overtemperature", "board": "19", "type": "fault"},
+  "42.101": {"main": "Pitch control error", "sub": "Limit switch - 2° blade A", "board": "17", "type": "fault"},
+  "42.102": {"main": "Pitch control error", "sub": "Limit switch 90° blade A", "board": "17", "type": "fault"},
+  "42.103": {"main": "Pitch control error", "sub": "Limit switch 95° blade A", "board": "17", "type": "fault"},
+  "42.104": {"main": "Pitch control error", "sub": "Limit switch 97° blade A", "board": "17", "type": "fault"},
+  "42.105": {"main": "Pitch control error", "sub": "Angle monitoring 3° blade A", "board": "17", "type": "fault"},
+  "42.106": {"main": "Pitch control error", "sub": "Angle monitoring 56° blade A", "board": "17", "type": "fault"},
+  "42.107": {"main": "Pitch control error", "sub": "Angle error blade A", "board": "17/18/19", "type": "fault"},
+  "42.108": {"main": "Pitch control error", "sub": "56°-mark blade A not programmed", "board": "17", "type": "fault"},
+  "42.109": {"main": "Pitch control error", "sub": "State error blade A", "board": "17", "type": "fault"},
+  "42.110": {"main": "Pitch control error", "sub": "Undervoltage L1 power stage 1 blade A", "board": "17", "type": "fault"},
+  "42.111": {"main": "Pitch control error", "sub": "Undervoltage L2 power stage 1 blade A", "board": "17", "type": "fault"},
+  "42.112": {"main": "Pitch control error", "sub": "Undervoltage L3 power stage 1 blade A", "board": "17", "type": "fault"},
+  "42.113": {"main": "Pitch control error", "sub": "Undervoltage L1 power stage 2 blade A", "board": "17", "type": "fault"},
+  "42.114": {"main": "Pitch control error", "sub": "Undervoltage L2 power stage 2 blade A", "board": "17", "type": "fault"},
+  "42.115": {"main": "Pitch control error", "sub": "Undervoltage L3 power stage 2 blade A", "board": "17", "type": "fault"},
+  "42.116": {"main": "Pitch control error", "sub": "Undervolt. L1 power stage 1+2 blade A", "board": "17", "type": "fault"},
+  "42.117": {"main": "Pitch control error", "sub": "Undervolt. L2 power stage 1+2 blade A", "board": "17", "type": "fault"},
+  "42.118": {"main": "Pitch control error", "sub": "Undervolt. L3 power stage 1+2 blade A", "board": "17", "type": "fault"},
+  "42.119": {"main": "Pitch control error", "sub": "Phase sequence error power stage 1 A", "board": "17", "type": "fault"},
+  "42.120": {"main": "Pitch control error", "sub": "Phase sequence error power stage 2 A", "board": "17", "type": "fault"},
+  "42.121": {"main": "Pitch control error", "sub": "Phase sequence error pow. stage 1+2 A", "board": "17", "type": "fault"},
+  "42.122": {"main": "Pitch control error", "sub": "Supply power stage 1 blade A", "board": "17", "type": "fault"},
+  "42.123": {"main": "Pitch control error", "sub": "Supply power stage 2 blade A", "board": "17", "type": "fault"},
+  "42.124": {"main": "Pitch control error", "sub": "Supply power stage 1+2 blade A", "board": "17", "type": "fault"},
+  "42.125": {"main": "Pitch control error", "sub": "Undervoltage DC-link 1 blade A", "board": "17", "type": "fault"},
+  "42.126": {"main": "Pitch control error", "sub": "Undervoltage DC-link 2 blade A", "board": "17", "type": "fault"},
+  "42.127": {"main": "Pitch control error", "sub": "Undervoltage DC-link 1+2 blade A", "board": "17", "type": "fault"},
+  "42.128": {"main": "Pitch control error", "sub": "Overvoltage DC-link 1 blade A", "board": "17", "type": "fault"},
+  "42.129": {"main": "Pitch control error", "sub": "Overvoltage DC-link 2 blade A", "board": "17", "type": "fault"},
+  "42.130": {"main": "Pitch control error", "sub": "Overvoltage DC-link 1+2 blade A", "board": "17", "type": "fault"},
+  "42.131": {"main": "Pitch control error", "sub": "Overtemp. heatsink power stage 1 A", "board": "17", "type": "fault"},
+  "42.132": {"main": "Pitch control error", "sub": "Overtemp. heatsink power stage 2 A", "board": "17", "type": "fault"},
+  "42.133": {"main": "Pitch control error", "sub": "Overtemp. heatsink power stage 1+2 A", "board": "17", "type": "fault"},
+  "42.134": {"main": "Pitch control error", "sub": "Overtemperature motor 1 blade A", "board": "17", "type": "fault"},
+  "42.135": {"main": "Pitch control error", "sub": "Overtemperature motor 2 blade A", "board": "17", "type": "fault"},
+  "42.136": {"main": "Pitch control error", "sub": "Overtemperature motor 1+2 blade A", "board": "17", "type": "fault"},
+  "42.138": {"main": "Pitch control error", "sub": "Motor current too high blade A", "board": "17", "type": "fault"},
+  "42.140": {"main": "Pitch control error", "sub": "Overcurrent armature motor 1 blade A", "board": "17", "type": "fault"},
+  "42.141": {"main": "Pitch control error", "sub": "Overcurrent armature motor 2 blade A", "board": "17", "type": "fault"},
+  "42.142": {"main": "Pitch control error", "sub": "Overcurrent armature motor 1+2 A", "board": "17", "type": "fault"},
+  "42.143": {"main": "Pitch control error", "sub": "Overcurrent field motor 1 blade A", "board": "17", "type": "fault"},
+  "42.144": {"main": "Pitch control error", "sub": "Overcurrent field motor 2 blade A", "board": "17", "type": "fault"},
+  "42.145": {"main": "Pitch control error", "sub": "Overcurrent brakes blade A", "board": "17", "type": "fault"},
+  "42.201": {"main": "Pitch control error", "sub": "Limit switch - 2° blade B", "board": "18", "type": "fault"},
+  "42.202": {"main": "Pitch control error", "sub": "Limit switch 90° blade B", "board": "18", "type": "fault"},
+  "42.203": {"main": "Pitch control error", "sub": "Limit switch 95° blade B", "board": "18", "type": "fault"},
+  "42.204": {"main": "Pitch control error", "sub": "Limit switch 97° blade B", "board": "18", "type": "fault"},
+  "42.205": {"main": "Pitch control error", "sub": "Angle monitoring 3° blade B", "board": "18", "type": "fault"},
+  "42.206": {"main": "Pitch control error", "sub": "Angle monitoring 56° blade B", "board": "18", "type": "fault"},
+  "42.207": {"main": "Pitch control error", "sub": "Angle error blade B", "board": "17/18/19", "type": "fault"},
+  "42.208": {"main": "Pitch control error", "sub": "56°-mark blade B not programmed", "board": "18", "type": "fault"},
+  "42.209": {"main": "Pitch control error", "sub": "State error blade B", "board": "18", "type": "fault"},
+  "42.210": {"main": "Pitch control error", "sub": "Undervoltage L1 power stage 1 blade B", "board": "18", "type": "fault"},
+  "42.211": {"main": "Pitch control error", "sub": "Undervoltage L2 power stage 1 blade B", "board": "18", "type": "fault"},
+  "42.212": {"main": "Pitch control error", "sub": "Undervoltage L3 power stage 1 blade B", "board": "18", "type": "fault"},
+  "42.213": {"main": "Pitch control error", "sub": "Undervoltage L1 power stage 2 blade B", "board": "18", "type": "fault"},
+  "42.214": {"main": "Pitch control error", "sub": "Undervoltage L2 power stage 2 blade B", "board": "18", "type": "fault"},
+  "42.215": {"main": "Pitch control error", "sub": "Undervoltage L3 power stage 2 blade B", "board": "18", "type": "fault"},
+  "42.216": {"main": "Pitch control error", "sub": "Undervolt. L1 power stage 1+2 blade B", "board": "18", "type": "fault"},
+  "42.217": {"main": "Pitch control error", "sub": "Undervolt. L2 power stage 1+2 blade B", "board": "18", "type": "fault"},
+  "42.218": {"main": "Pitch control error", "sub": "Undervolt. L3 power stage 1+2 blade B", "board": "18", "type": "fault"},
+  "42.219": {"main": "Pitch control error", "sub": "Phase sequence error power stage 1 B", "board": "18", "type": "fault"},
+  "42.220": {"main": "Pitch control error", "sub": "Phase sequence error power stage 2 B", "board": "18", "type": "fault"},
+  "42.221": {"main": "Pitch control error", "sub": "Phase sequence error pow. stage 1+2 B", "board": "18", "type": "fault"},
+  "42.222": {"main": "Pitch control error", "sub": "Supply power stage 1 blade B", "board": "18", "type": "fault"},
+  "42.223": {"main": "Pitch control error", "sub": "Supply power stage 2 blade B", "board": "18", "type": "fault"},
+  "42.224": {"main": "Pitch control error", "sub": "Supply power stage 1+2 blade B", "board": "18", "type": "fault"},
+  "42.225": {"main": "Pitch control error", "sub": "Undervoltage DC-link 1 blade B", "board": "18", "type": "fault"},
+  "42.226": {"main": "Pitch control error", "sub": "Undervoltage DC-link 2 blade B", "board": "18", "type": "fault"},
+  "42.227": {"main": "Pitch control error", "sub": "Undervoltage DC-link 1+2 blade B", "board": "18", "type": "fault"},
+  "42.228": {"main": "Pitch control error", "sub": "Overvoltage DC-link 1 blade B", "board": "18", "type": "fault"},
+  "42.229": {"main": "Pitch control error", "sub": "Overvoltage DC-link 2 blade B", "board": "18", "type": "fault"},
+  "42.230": {"main": "Pitch control error", "sub": "Overvoltage DC-link 1+2 blade B", "board": "18", "type": "fault"},
+  "42.231": {"main": "Pitch control error", "sub": "Overtemp. heatsink power stage 1 B", "board": "18", "type": "fault"},
+  "42.232": {"main": "Pitch control error", "sub": "Overtemp. heatsink power stage 2 B", "board": "18", "type": "fault"},
+  "42.233": {"main": "Pitch control error", "sub": "Overtemp. heatsink power stage 1+2 B", "board": "18", "type": "fault"},
+  "42.234": {"main": "Pitch control error", "sub": "Overtemperature motor 1 blade B", "board": "18", "type": "fault"},
+  "42.235": {"main": "Pitch control error", "sub": "Overtemperature motor 2 blade B", "board": "18", "type": "fault"},
+  "42.236": {"main": "Pitch control error", "sub": "Overtemperature motor 1+2 blade B", "board": "18", "type": "fault"},
+  "42.238": {"main": "Pitch control error", "sub": "Motor current too high blade B", "board": "18", "type": "fault"},
+  "42.240": {"main": "Pitch control error", "sub": "Overcurrent armature motor 1 blade B", "board": "18", "type": "fault"},
+  "42.241": {"main": "Pitch control error", "sub": "Overcurrent armature motor 2 blade B", "board": "18", "type": "fault"},
+  "42.242": {"main": "Pitch control error", "sub": "Overcurrent armature motor 1+2 B", "board": "18", "type": "fault"},
+  "42.243": {"main": "Pitch control error", "sub": "Overcurrent field motor 1 blade B", "board": "18", "type": "fault"},
+  "42.244": {"main": "Pitch control error", "sub": "Overcurrent field motor 2 blade B", "board": "18", "type": "fault"},
+  "42.245": {"main": "Pitch control error", "sub": "Overcurrent brakes blade B", "board": "18", "type": "fault"},
+  "42.301": {"main": "Pitch control error", "sub": "Limit switch - 2° blade C", "board": "19", "type": "fault"},
+  "42.302": {"main": "Pitch control error", "sub": "Limit switch 90° blade C", "board": "19", "type": "fault"},
+  "42.303": {"main": "Pitch control error", "sub": "Limit switch 95° blade C", "board": "19", "type": "fault"},
+  "42.304": {"main": "Pitch control error", "sub": "Limit switch 97° blade C", "board": "19", "type": "fault"},
+  "42.305": {"main": "Pitch control error", "sub": "Angle monitoring 3° blade C", "board": "19", "type": "fault"},
+  "42.306": {"main": "Pitch control error", "sub": "Angle monitoring 56° blade C", "board": "19", "type": "fault"},
+  "42.307": {"main": "Pitch control error", "sub": "Angle error blade C", "board": "17/18/19", "type": "fault"},
+  "42.308": {"main": "Pitch control error", "sub": "56°-mark blade C not programmed", "board": "19", "type": "fault"},
+  "42.309": {"main": "Pitch control error", "sub": "State error blade C", "board": "19", "type": "fault"},
+  "42.310": {"main": "Pitch control error", "sub": "Undervoltage L1 power stage 1 blade C", "board": "19", "type": "fault"},
+  "42.311": {"main": "Pitch control error", "sub": "Undervoltage L2 power stage 1 blade C", "board": "19", "type": "fault"},
+  "42.312": {"main": "Pitch control error", "sub": "Undervoltage L3 power stage 1 blade C", "board": "19", "type": "fault"},
+  "42.313": {"main": "Pitch control error", "sub": "Undervoltage L1 power stage 2 blade C", "board": "19", "type": "fault"},
+  "42.314": {"main": "Pitch control error", "sub": "Undervoltage L2 power stage 2 blade C", "board": "19", "type": "fault"},
+  "42.315": {"main": "Pitch control error", "sub": "Undervoltage L3 power stage 2 blade C", "board": "19", "type": "fault"},
+  "42.316": {"main": "Pitch control error", "sub": "Undervolt. L1 power stage 1+2 blade C", "board": "19", "type": "fault"},
+  "42.317": {"main": "Pitch control error", "sub": "Undervolt. L2 power stage 1+2 blade C", "board": "19", "type": "fault"},
+  "42.318": {"main": "Pitch control error", "sub": "Undervolt. L3 power stage 1+2 blade C", "board": "19", "type": "fault"},
+  "42.319": {"main": "Pitch control error", "sub": "Phase sequence error power stage 1 C", "board": "19", "type": "fault"},
+  "42.320": {"main": "Pitch control error", "sub": "Phase sequence error power stage 2 C", "board": "19", "type": "fault"},
+  "42.321": {"main": "Pitch control error", "sub": "Phase sequence error pow. stage 1+2 C", "board": "19", "type": "fault"},
+  "42.322": {"main": "Pitch control error", "sub": "Supply power stage 1 blade C", "board": "19", "type": "fault"},
+  "42.323": {"main": "Pitch control error", "sub": "Supply power stage 2 blade C", "board": "19", "type": "fault"},
+  "42.324": {"main": "Pitch control error", "sub": "Supply power stage 1+2 blade C", "board": "19", "type": "fault"},
+  "42.325": {"main": "Pitch control error", "sub": "Undervoltage DC-link 1 blade C", "board": "19", "type": "fault"},
+  "42.326": {"main": "Pitch control error", "sub": "Undervoltage DC-link 2 blade C", "board": "19", "type": "fault"},
+  "42.327": {"main": "Pitch control error", "sub": "Undervoltage DC-link 1+2 blade C", "board": "19", "type": "fault"},
+  "42.328": {"main": "Pitch control error", "sub": "Overvoltage DC-link 1 blade C", "board": "19", "type": "fault"},
+  "42.329": {"main": "Pitch control error", "sub": "Overvoltage DC-link 2 blade C", "board": "19", "type": "fault"},
+  "42.330": {"main": "Pitch control error", "sub": "Overvoltage DC-link 1+2 blade C", "board": "19", "type": "fault"},
+  "42.331": {"main": "Pitch control error", "sub": "Overtemp. heatsink power stage 1 C", "board": "19", "type": "fault"},
+  "42.332": {"main": "Pitch control error", "sub": "Overtemp. heatsink power stage 2 C", "board": "19", "type": "fault"},
+  "42.333": {"main": "Pitch control error", "sub": "Overtemp. heatsink power stage 1+2 C", "board": "19", "type": "fault"},
+  "42.334": {"main": "Pitch control error", "sub": "Overtemperature motor 1 blade C", "board": "19", "type": "fault"},
+  "42.335": {"main": "Pitch control error", "sub": "Overtemperature motor 2 blade C", "board": "19", "type": "fault"},
+  "42.336": {"main": "Pitch control error", "sub": "Overtemperature motor 1+2 blade C", "board": "19", "type": "fault"},
+  "42.338": {"main": "Pitch control error", "sub": "Motor current too high blade C", "board": "19", "type": "fault"},
+  "42.340": {"main": "Pitch control error", "sub": "Overcurrent armature motor 1 blade C", "board": "19", "type": "fault"},
+  "42.341": {"main": "Pitch control error", "sub": "Overcurrent armature motor 2 blade C", "board": "19", "type": "fault"},
+  "42.342": {"main": "Pitch control error", "sub": "Overcurrent armature motor 1+2 C", "board": "19", "type": "fault"},
+  "42.343": {"main": "Pitch control error", "sub": "Overcurrent field motor 1 blade C", "board": "19", "type": "fault"},
+  "42.344": {"main": "Pitch control error", "sub": "Overcurrent field motor 2 blade C", "board": "19", "type": "fault"},
+  "42.345": {"main": "Pitch control error", "sub": "Overcurrent brakes blade C", "board": "19", "type": "fault"},
+  "44.101": {"main": "Fault emergency stop capacitor", "sub": "Undervoltage 300V capacitor A", "board": "17", "type": "fault"},
+  "44.102": {"main": "Fault emergency stop capacitor", "sub": "Undervoltage 75V capacitor A", "board": "17", "type": "fault"},
+  "44.103": {"main": "Fault emergency stop capacitor", "sub": "Overvoltage 300V capacitor A", "board": "17", "type": "fault"},
+  "44.104": {"main": "Fault emergency stop capacitor", "sub": "Overvoltage 75V capacitor A", "board": "17", "type": "fault"},
+  "44.105": {"main": "Fault emergency stop capacitor", "sub": "Capacitor test 300V blade A", "board": "17", "type": "fault"},
+  "44.106": {"main": "Fault emergency stop capacitor", "sub": "Capacitor test 75V blade A", "board": "17", "type": "fault"},
+  "44.201": {"main": "Fault emergency stop capacitor", "sub": "Undervoltage 300V capacitor B", "board": "18", "type": "fault"},
+  "44.202": {"main": "Fault emergency stop capacitor", "sub": "Undervoltage 75V capacitor B", "board": "18", "type": "fault"},
+  "44.203": {"main": "Fault emergency stop capacitor", "sub": "Overvoltage 300V capacitor B", "board": "18", "type": "fault"},
+  "44.204": {"main": "Fault emergency stop capacitor", "sub": "Overvoltage 75V capacitor B", "board": "18", "type": "fault"},
+  "44.205": {"main": "Fault emergency stop capacitor", "sub": "Capacitor test 300V blade B", "board": "18", "type": "fault"},
+  "44.206": {"main": "Fault emergency stop capacitor", "sub": "Capacitor test 75V blade B", "board": "18", "type": "fault"},
+  "44.301": {"main": "Fault emergency stop capacitor", "sub": "Undervoltage 300V capacitor C", "board": "19", "type": "fault"},
+  "44.302": {"main": "Fault emergency stop capacitor", "sub": "Undervoltage 75V capacitor C", "board": "19", "type": "fault"},
+  "44.303": {"main": "Fault emergency stop capacitor", "sub": "Overvoltage 300V capacitor C", "board": "19", "type": "fault"},
+  "44.304": {"main": "Fault emergency stop capacitor", "sub": "Overvoltage 75V capacitor C", "board": "19", "type": "fault"},
+  "44.305": {"main": "Fault emergency stop capacitor", "sub": "Capacitor test 300V blade C", "board": "19", "type": "fault"},
+  "44.306": {"main": "Fault emergency stop capacitor", "sub": "Capacitor test 75V blade C", "board": "19", "type": "fault"},
+  "45.101": {"main": "Capacitor charging error", "sub": "No quick charging power stage 1 A", "board": "17", "type": "fault"},
+  "45.102": {"main": "Capacitor charging error", "sub": "No quick charging power stage 1+2 A", "board": "17", "type": "fault"},
+  "45.103": {"main": "Capacitor charging error", "sub": "No trickle charge capacitor A", "board": "17", "type": "fault"},
+  "45.104": {"main": "Capacitor charging error", "sub": "Trickle charge curr. too high capacitor A", "board": "17", "type": "fault"},
+  "45.105": {"main": "Capacitor charging error", "sub": "Capacitor not chargeable blade A", "board": "17", "type": "fault"},
+  "45.201": {"main": "Capacitor charging error", "sub": "No quick charging power stage 1 B", "board": "18", "type": "fault"},
+  "45.202": {"main": "Capacitor charging error", "sub": "No quick charging power stage 1+2 B", "board": "18", "type": "fault"},
+  "45.203": {"main": "Capacitor charging error", "sub": "No trickle charge capacitor B", "board": "18", "type": "fault"},
+  "45.204": {"main": "Capacitor charging error", "sub": "Trickle charge curr. too high capacitor B", "board": "18", "type": "fault"},
+  "45.205": {"main": "Capacitor charging error", "sub": "Capacitor not chargeable blade B", "board": "18", "type": "fault"},
+  "45.301": {"main": "Capacitor charging error", "sub": "No quick charging power stage 1 C", "board": "19", "type": "fault"},
+  "45.302": {"main": "Capacitor charging error", "sub": "No quick charging power stage 1+2 C", "board": "19", "type": "fault"},
+  "45.303": {"main": "Capacitor charging error", "sub": "No trickle charge capacitor C", "board": "19", "type": "fault"},
+  "45.304": {"main": "Capacitor charging error", "sub": "Trickle charge curr. too high capacitor C", "board": "19", "type": "fault"},
+  "45.305": {"main": "Capacitor charging error", "sub": "Capacitor not chargeable blade C", "board": "19", "type": "fault"},
+  "46.99": {"main": "Fault capacitor test", "sub": "Timeout (1)", "board": "17/18/19", "type": "warn"},
+  "46.101": {"main": "Fault capacitor test", "sub": "Blade A", "board": "17", "type": "fault"},
+  "46.201": {"main": "Fault capacitor test", "sub": "Blade B", "board": "17", "type": "fault"},
+  "46.301": {"main": "Fault capacitor test", "sub": "Blade C", "board": "17", "type": "fault"},
+  "47.1": {"main": "Fault safety system", "sub": "Blade A", "board": "17", "type": "fault"},
+  "47.2": {"main": "Fault safety system", "sub": "Blade B", "board": "18", "type": "fault"},
+  "47.3": {"main": "Fault safety system", "sub": "Blade C", "board": "19", "type": "fault"},
+  "47.4": {"main": "Fault safety system", "sub": "Blade A+B", "board": "19", "type": "fault"},
+  "47.5": {"main": "Fault safety system", "sub": "Blade A+C", "board": "19", "type": "fault"},
+  "47.6": {"main": "Fault safety system", "sub": "Blade B+C", "board": "19", "type": "fault"},
+  "47.7": {"main": "Fault safety system", "sub": "Blade A+B+C", "board": "19", "type": "fault"},
+  "47.10": {"main": "Fault safety system", "sub": "Main safety circuit", "board": "17", "type": "fault"},
+  "47.11": {"main": "Fault safety system", "sub": "Limit switch not reached blade A", "board": "17", "type": "fault"},
+  "47.12": {"main": "Fault safety system", "sub": "Limit switch not reached blade B", "board": "18", "type": "fault"},
+  "47.13": {"main": "Fault safety system", "sub": "Limit switch not reached blade C", "board": "19", "type": "fault"},
+  "47.14": {"main": "Fault safety system", "sub": "Limit switch not reached blade A+B", "board": "19", "type": "fault"},
+  "47.15": {"main": "Fault safety system", "sub": "Limit switch not reached blade A+C", "board": "19", "type": "fault"},
+  "47.16": {"main": "Fault safety system", "sub": "Limit switch not reached blade B+C", "board": "19", "type": "fault"},
+  "47.17": {"main": "Fault safety system", "sub": "Limit switch not reached blade A+B+C", "board": "19", "type": "fault"},
+  "47.99": {"main": "Fault safety system", "sub": "Timeout (1)", "board": "81", "type": "warn"},
+  "48.3": {"main": "Speed sensor error", "sub": "Measurement I/O-board", "board": "83", "type": "fault"},
+  "48.4": {"main": "Speed sensor error", "sub": "Measurement pitch control", "board": "83", "type": "fault"},
+  "48.5": {"main": "Speed sensor error", "sub": "Diff. I/O-board / pitch control", "board": "83", "type": "fault"},
+  "48.10": {"main": "Speed sensor error", "sub": "Acceleration measurement", "board": "83", "type": "fault"},
+  "48.12": {"main": "Speed sensor error", "sub": "Acceleration measurement (-)", "board": "17", "type": "warn"},
+  "48.13": {"main": "Speed sensor error", "sub": "No index from speed sensor", "board": "17", "type": "fault"},
+  "48.15": {"main": "Speed sensor error", "sub": "Too many speed pulses (-)", "board": "17", "type": "warn"},
+  "48.16": {"main": "Speed sensor error", "sub": "Too few speed pulses (-)", "board": "17", "type": "warn"},
+  "48.21": {"main": "Speed sensor error", "sub": "Intermittent speed pulses", "board": "83", "type": "fault"},
+  "48.22": {"main": "Speed sensor error", "sub": "Double speed pulses", "board": "83", "type": "fault"},
+  "49.1": {"main": "Fault blade load control", "sub": "No enable Signal from MPU", "board": "", "type": "fault"},
+  "49.2": {"main": "Fault blade load control", "sub": "Deactivated", "board": "17/18/19", "type": "fault"},
+  "49.3": {"main": "Fault blade load control", "sub": "Load difference", "board": "17/18/19", "type": "fault"},
+  "49.12": {"main": "Fault blade load control", "sub": "Timeout calibration", "board": "81", "type": "fault"},
+  "49.101": {"main": "Fault blade load control", "sub": "Rough calibration not poss. blade A", "board": "17", "type": "fault"},
+  "49.102": {"main": "Fault blade load control", "sub": "Fine calibration not poss. blade A", "board": "17", "type": "fault"},
+  "49.103": {"main": "Fault blade load control", "sub": "Calibration terminated blade A", "board": "17", "type": "fault"},
+  "49.104": {"main": "Fault blade load control", "sub": "Error old calibration blade A", "board": "17", "type": "fault"},
+  "49.105": {"main": "Fault blade load control", "sub": "Error load sensor blade A", "board": "17", "type": "fault"},
+  "49.106": {"main": "Fault blade load control", "sub": "Wrong turbine type blade A", "board": "17", "type": "fault"},
+  "49.120": {"main": "Fault blade load control", "sub": "Underflow measurement blade A", "board": "17", "type": "fault"},
+  "49.121": {"main": "Fault blade load control", "sub": "Overflow measurement blade A", "board": "17", "type": "fault"},
+  "49.201": {"main": "Fault blade load control", "sub": "Rough calibration not poss. blade B", "board": "18", "type": "fault"},
+  "49.202": {"main": "Fault blade load control", "sub": "Fine calibration not poss. blade B", "board": "18", "type": "fault"},
+  "49.203": {"main": "Fault blade load control", "sub": "Calibration terminated blade B", "board": "18", "type": "fault"},
+  "49.204": {"main": "Fault blade load control", "sub": "Error old calibration blade B", "board": "18", "type": "fault"},
+  "49.205": {"main": "Fault blade load control", "sub": "Error load sensor blade B", "board": "18", "type": "fault"},
+  "49.206": {"main": "Fault blade load control", "sub": "Wrong turbine type blade B", "board": "18", "type": "fault"},
+  "49.220": {"main": "Fault blade load control", "sub": "Underflow measurement blade B", "board": "18", "type": "fault"},
+  "49.221": {"main": "Fault blade load control", "sub": "Overflow measurement blade B", "board": "18", "type": "fault"},
+  "49.301": {"main": "Fault blade load control", "sub": "Rough calibration not poss. blade C", "board": "19", "type": "fault"},
+  "49.302": {"main": "Fault blade load control", "sub": "Fine calibration not poss. blade C", "board": "19", "type": "fault"},
+  "49.303": {"main": "Fault blade load control", "sub": "Calibration terminated blade C", "board": "19", "type": "fault"},
+  "49.304": {"main": "Fault blade load control", "sub": "Error old calibration blade C", "board": "19", "type": "fault"},
+  "49.305": {"main": "Fault blade load control", "sub": "Error load sensor blade C", "board": "19", "type": "fault"},
+  "49.306": {"main": "Fault blade load control", "sub": "Wrong turbine type blade C", "board": "19", "type": "fault"},
+  "49.320": {"main": "Fault blade load control", "sub": "Underflow measurement blade C", "board": "19", "type": "fault"},
+  "49.321": {"main": "Fault blade load control", "sub": "Overflow measurement blade C", "board": "19", "type": "fault"},
+  "50.18": {"main": "Monitoring sensor", "sub": "Noise sensor deactivated", "board": "81", "type": "info"},
+  "50.19": {"main": "Monitoring sensor", "sub": "Noise sensor activated", "board": "81", "type": "info"},
+  "50.23": {"main": "Monitoring sensor", "sub": "Noise in nacelle detected", "board": "83", "type": "info"},
+  "50.112": {"main": "Monitoring sensor", "sub": "Noise sensor spinner faulty blade A (4)", "board": "17", "type": "warn"},
+  "50.113": {"main": "Monitoring sensor", "sub": "Noise in spinner detected blade A", "board": "17", "type": "info"},
+  "50.*114": {"main": "Monitoring sensor", "sub": "Noises in spinner blade A", "board": "17", "type": "fault"},
+  "50.212": {"main": "Monitoring sensor", "sub": "Noise sensor spinner faulty blade B (4)", "board": "18", "type": "warn"},
+  "50.213": {"main": "Monitoring sensor", "sub": "Noise in spinner detected blade B", "board": "18", "type": "info"},
+  "50.*214": {"main": "Monitoring sensor", "sub": "Noises in spinner blade B", "board": "18", "type": "fault"},
+  "50.312": {"main": "Monitoring sensor", "sub": "Noise sensor spinner faulty blade B (4)", "board": "19", "type": "warn"},
+  "50.313": {"main": "Monitoring sensor", "sub": "Noise in spinner detected blade B", "board": "19", "type": "info"},
+  "50.*314": {"main": "Monitoring sensor", "sub": "Noises in spinner blade B", "board": "19", "type": "fault"},
+  "55.1": {"main": "Error Bladeheating", "sub": "Fans not switchable to on (-)", "board": "19", "type": "warn"},
+  "55.2": {"main": "Error Bladeheating", "sub": "Fans not switchable to off (-)", "board": "19", "type": "warn"},
+  "55.10": {"main": "Error Bladeheating", "sub": "Circuit breaker tripped (air heat.) (-)", "board": "19", "type": "warn"},
+  "55.50": {"main": "Error Bladeheating", "sub": "Circuit breaker tripped (mesh heat.) (-)", "board": "19", "type": "warn"},
+  "55.51": {"main": "Error Bladeheating", "sub": "Detection of isolating switch faulty (-)", "board": "19", "type": "warn"},
+  "55.52": {"main": "Error Bladeheating", "sub": "Isolating switch not switchable to on (-)", "board": "19", "type": "warn"},
+  "55.53": {"main": "Error Bladeheating", "sub": "Isolating switch not switchable to off (-)", "board": "19", "type": "warn"},
+  "55.99": {"main": "Error Bladeheating", "sub": "Deactivated: Too many errors (-)", "board": "81", "type": "warn"},
+  "55.101": {"main": "Error Bladeheating", "sub": "Not switchable to on blade A (air heat.)(-)", "board": "17", "type": "warn"},
+  "55.102": {"main": "Error Bladeheating", "sub": "Not switchable to off blade A (air heat.)", "board": "17", "type": "fault"},
+  "55.150": {"main": "Error Bladeheating", "sub": "Detection faulty blade A (-)", "board": "17", "type": "warn"},
+  "55.151": {"main": "Error Bladeheating", "sub": "Not switchable to on blade A (mesh h.)(-)", "board": "17", "type": "warn"},
+  "55.152": {"main": "Error Bladeheating", "sub": "Not switchable to off blade A (mesh h.)", "board": "17", "type": "fault"},
+  "55.201": {"main": "Error Bladeheating", "sub": "Not switchable to on blade B (air heat.)(-)", "board": "18", "type": "warn"},
+  "55.202": {"main": "Error Bladeheating", "sub": "Not switchable to off blade B (air heat.)", "board": "18", "type": "fault"},
+  "55.250": {"main": "Error Bladeheating", "sub": "Detection faulty blade B (-)", "board": "18", "type": "warn"},
+  "55.251": {"main": "Error Bladeheating", "sub": "Not switchable to on blade B (mesh h.)(-)", "board": "18", "type": "warn"},
+  "55.252": {"main": "Error Bladeheating", "sub": "Not switchable to off blade B (mesh h.)", "board": "18", "type": "fault"},
+  "55.301": {"main": "Error Bladeheating", "sub": "Not switchable to on blade C (air heat.)(-)", "board": "19", "type": "warn"},
+  "55.302": {"main": "Error Bladeheating", "sub": "Not switchable to off blade C (air heat.)", "board": "19", "type": "fault"},
+  "55.350": {"main": "Error Bladeheating", "sub": "Detection faulty blade C (-)", "board": "19", "type": "warn"},
+  "55.351": {"main": "Error Bladeheating", "sub": "Not switchable to on blade C (mesh h.)(-)", "board": "19", "type": "warn"},
+  "55.352": {"main": "Error Bladeheating", "sub": "Not switchable to off blade C (mesh h.)", "board": "19", "type": "fault"},
+  "58.101": {"main": "Fault lubrication system", "sub": "Grease reservoir empty blade A (7)", "board": "17", "type": "warn"},
+  "58.102": {"main": "Fault lubrication system", "sub": "No pressure blade A (7)", "board": "17", "type": "warn"},
+  "58.103": {"main": "Fault lubrication system", "sub": "No loss of pressure blade A (7)", "board": "17", "type": "warn"},
+  "58.104": {"main": "Fault lubrication system", "sub": "Malfunction manometric switch A (7)", "board": "17", "type": "warn"},
+  "58.105": {"main": "Fault lubrication system", "sub": "No pressure at lubrication process A (-)", "board": "17", "type": "warn"},
+  "58.201": {"main": "Fault lubrication system", "sub": "Grease reservoir empty blade B (7)", "board": "18", "type": "warn"},
+  "58.202": {"main": "Fault lubrication system", "sub": "No pressure blade B (7)", "board": "18", "type": "warn"},
+  "58.203": {"main": "Fault lubrication system", "sub": "No loss of pressure blade B (7)", "board": "18", "type": "warn"},
+  "58.204": {"main": "Fault lubrication system", "sub": "Malfunction manometric switch B (7)", "board": "18", "type": "warn"},
+  "58.205": {"main": "Fault lubrication system", "sub": "No pressure at lubrication process B (-)", "board": "18", "type": "warn"},
+  "58.301": {"main": "Fault lubrication system", "sub": "Grease reservoir empty blade C (7)", "board": "19", "type": "warn"},
+  "58.302": {"main": "Fault lubrication system", "sub": "No pressure blade C (7)", "board": "19", "type": "warn"},
+  "58.303": {"main": "Fault lubrication system", "sub": "No loss of pressure blade C (7)", "board": "19", "type": "warn"},
+  "58.304": {"main": "Fault lubrication system", "sub": "Malfunction manometric switch C (7)", "board": "19", "type": "warn"},
+  "58.305": {"main": "Fault lubrication system", "sub": "No pressure at lubrication process C (-)", "board": "19", "type": "warn"},
+  "60.1": {"main": "Mains failure", "sub": "Monitoring electric supply company", "board": "81", "type": "fault"},
+  "60.2": {"main": "Mains failure", "sub": "Start delay", "board": "81", "type": "fault"},
+  "60.5": {"main": "Mains failure", "sub": "High voltage earth contact monit. (-)", "board": "81", "type": "warn"},
+  "60.109": {"main": "Mains failure", "sub": "Undervoltage L1+L2+L3 System 1", "board": "33", "type": "fault"},
+  "60.110": {"main": "Mains failure", "sub": "Overvoltage L1+L2+L3 System 1", "board": "33", "type": "fault"},
+  "60.111": {"main": "Mains failure", "sub": "Undervoltage L1 System 1", "board": "33", "type": "fault"},
+  "60.112": {"main": "Mains failure", "sub": "Undervoltage L2 System 1", "board": "33", "type": "fault"},
+  "60.113": {"main": "Mains failure", "sub": "Undervoltage L3 System 1", "board": "33", "type": "fault"},
+  "60.114": {"main": "Mains failure", "sub": "Overvoltage L1 System 1", "board": "33", "type": "fault"},
+  "60.115": {"main": "Mains failure", "sub": "Overvoltage L2 System 1", "board": "33", "type": "fault"},
+  "60.116": {"main": "Mains failure", "sub": "Overvoltage L3 System 1", "board": "33", "type": "fault"},
+  "60.117": {"main": "Mains failure", "sub": "Underfrequency System 1", "board": "33", "type": "fault"},
+  "60.118": {"main": "Mains failure", "sub": "Overfrequency System 1", "board": "33", "type": "fault"},
+  "60.119": {"main": "Mains failure", "sub": "Phase sequence error System 1", "board": "33", "type": "fault"},
+  "60.140": {"main": "Mains failure", "sub": "Overvoltage (hardware) System 1", "board": "33", "type": "fault"},
+  "60.209": {"main": "Mains failure", "sub": "Undervoltage L1+L2+L3 System 2", "board": "34", "type": "fault"},
+  "60.210": {"main": "Mains failure", "sub": "Overvoltage L1+L2+L3 System 2", "board": "34", "type": "fault"},
+  "60.211": {"main": "Mains failure", "sub": "Undervoltage L1 System 2", "board": "34", "type": "fault"},
+  "60.212": {"main": "Mains failure", "sub": "Undervoltage L2 System 2", "board": "34", "type": "fault"},
+  "60.213": {"main": "Mains failure", "sub": "Undervoltage L3 System 2", "board": "34", "type": "fault"},
+  "60.214": {"main": "Mains failure", "sub": "Overvoltage L1 System 2", "board": "34", "type": "fault"},
+  "60.215": {"main": "Mains failure", "sub": "Overvoltage L2 System 2", "board": "34", "type": "fault"},
+  "60.216": {"main": "Mains failure", "sub": "Overvoltage L3 System 2", "board": "34", "type": "fault"},
+  "60.217": {"main": "Mains failure", "sub": "Underfrequency System 2", "board": "34", "type": "fault"},
+  "60.218": {"main": "Mains failure", "sub": "Overfrequency System 2", "board": "34", "type": "fault"},
+  "60.219": {"main": "Mains failure", "sub": "Phase sequence error System 2", "board": "34", "type": "fault"},
+  "60.240": {"main": "Mains failure", "sub": "Overvoltage (hardware) System 2", "board": "34", "type": "fault"},
+  "60.309": {"main": "Mains failure", "sub": "Undervoltage L1+L2+L3 System 3", "board": "35", "type": "fault"},
+  "60.310": {"main": "Mains failure", "sub": "Overvoltage L1+L2+L3 System 3", "board": "35", "type": "fault"},
+  "60.311": {"main": "Mains failure", "sub": "Undervoltage L1 System 3", "board": "35", "type": "fault"},
+  "60.312": {"main": "Mains failure", "sub": "Undervoltage L2 System 3", "board": "35", "type": "fault"},
+  "60.313": {"main": "Mains failure", "sub": "Undervoltage L3 System 3", "board": "35", "type": "fault"},
+  "60.314": {"main": "Mains failure", "sub": "Overvoltage L1 System 3", "board": "35", "type": "fault"},
+  "60.315": {"main": "Mains failure", "sub": "Overvoltage L2 System 3", "board": "35", "type": "fault"},
+  "60.316": {"main": "Mains failure", "sub": "Overvoltage L3 System 3", "board": "35", "type": "fault"},
+  "60.317": {"main": "Mains failure", "sub": "Underfrequency System 3", "board": "35", "type": "fault"},
+  "60.318": {"main": "Mains failure", "sub": "Overfrequency System 3", "board": "35", "type": "fault"},
+  "60.319": {"main": "Mains failure", "sub": "Phase sequence error System 3", "board": "35", "type": "fault"},
+  "60.340": {"main": "Mains failure", "sub": "Overvoltage (hardware) System 3", "board": "35", "type": "fault"},
+  "60.409": {"main": "Mains failure", "sub": "Undervoltage L1+L2+L3 System 4", "board": "36", "type": "fault"},
+  "60.410": {"main": "Mains failure", "sub": "Overvoltage L1+L2+L3 System 4", "board": "36", "type": "fault"},
+  "60.411": {"main": "Mains failure", "sub": "Undervoltage L1 System 4", "board": "36", "type": "fault"},
+  "60.412": {"main": "Mains failure", "sub": "Undervoltage L2 System 4", "board": "36", "type": "fault"},
+  "60.413": {"main": "Mains failure", "sub": "Undervoltage L3 System 4", "board": "36", "type": "fault"},
+  "60.414": {"main": "Mains failure", "sub": "Overvoltage L1 System 4", "board": "36", "type": "fault"},
+  "60.415": {"main": "Mains failure", "sub": "Overvoltage L2 System 4", "board": "36", "type": "fault"},
+  "60.416": {"main": "Mains failure", "sub": "Overvoltage L3 System 4", "board": "36", "type": "fault"},
+  "60.417": {"main": "Mains failure", "sub": "Underfrequency System 4", "board": "36", "type": "fault"},
+  "60.418": {"main": "Mains failure", "sub": "Overfrequency System 4", "board": "36", "type": "fault"},
+  "60.419": {"main": "Mains failure", "sub": "Phase sequence error System 4", "board": "36", "type": "fault"},
+  "60.440": {"main": "Mains failure", "sub": "Overvoltage (hardware) System 4", "board": "36", "type": "fault"},
+  "61.10": {"main": "Mains breakdown", "sub": "System 1", "board": "33", "type": "fault"},
+  "61.20": {"main": "Mains breakdown", "sub": "System 2", "board": "34", "type": "fault"},
+  "61.30": {"main": "Mains breakdown", "sub": "System 3", "board": "35", "type": "fault"},
+  "61.40": {"main": "Mains breakdown", "sub": "System 4", "board": "36", "type": "fault"},
+  "62.1": {"main": "Feeding fault", "sub": "Total power too low", "board": "81", "type": "fault"},
+  "62.2": {"main": "Feeding fault", "sub": "Total power too high", "board": "81", "type": "fault"},
+  "62.3": {"main": "Feeding fault", "sub": "Load shedding", "board": "81", "type": "fault"},
+  "62.4": {"main": "Feeding fault", "sub": "Inverter overload", "board": "81", "type": "fault"},
+  "62.7": {"main": "Feeding fault", "sub": "Diff. P-set / P-actual", "board": "81", "type": "fault"},
+  "62.8": {"main": "Feeding fault", "sub": "Diff. P-actual / KWh-measurement (7)", "board": "81", "type": "warn"},
+  "62.11": {"main": "Feeding fault", "sub": "Too low power system 1", "board": "81", "type": "fault"},
+  "62.12": {"main": "Feeding fault", "sub": "Too low power system 2", "board": "81", "type": "fault"},
+  "62.13": {"main": "Feeding fault", "sub": "Too low power system 3", "board": "81", "type": "fault"},
+  "62.14": {"main": "Feeding fault", "sub": "Too low power system 4", "board": "81", "type": "fault"},
+  "62.21": {"main": "Feeding fault", "sub": "Too much power system 1", "board": "81", "type": "fault"},
+  "62.22": {"main": "Feeding fault", "sub": "Too much power system 2", "board": "81", "type": "fault"},
+  "62.23": {"main": "Feeding fault", "sub": "Too much power system 3", "board": "81", "type": "fault"},
+  "62.24": {"main": "Feeding fault", "sub": "Too much power system 4", "board": "81", "type": "fault"},
+  "62.30": {"main": "Feeding fault", "sub": "Feeding safety circuit faulty", "board": "81", "type": "fault"},
+  "62.31": {"main": "Feeding fault", "sub": "Circuit breaker off system 1", "board": "81", "type": "fault"},
+  "62.32": {"main": "Feeding fault", "sub": "Circuit breaker off system 2", "board": "81", "type": "fault"},
+  "62.33": {"main": "Feeding fault", "sub": "Circuit breaker off system 3", "board": "81", "type": "fault"},
+  "62.34": {"main": "Feeding fault", "sub": "Circuit breaker off system 4", "board": "81", "type": "fault"},
+  "62.41": {"main": "Feeding fault", "sub": "Circuit breaker on system 1", "board": "81", "type": "fault"},
+  "62.42": {"main": "Feeding fault", "sub": "Circuit breaker on system 2", "board": "81", "type": "fault"},
+  "62.43": {"main": "Feeding fault", "sub": "Circuit breaker on system 3", "board": "81", "type": "fault"},
+  "62.44": {"main": "Feeding fault", "sub": "Circuit breaker on system 4", "board": "81", "type": "fault"},
+  "62.111": {"main": "Feeding fault", "sub": "Too low power inverter 1.1", "board": "81", "type": "fault"},
+  "62.112": {"main": "Feeding fault", "sub": "Too low power inverter 1.2", "board": "81", "type": "fault"},
+  "62.113": {"main": "Feeding fault", "sub": "Too low power inverter 1.3", "board": "81", "type": "fault"},
+  "62.114": {"main": "Feeding fault", "sub": "Too low power inverter 1.4", "board": "81", "type": "fault"},
+  "62.115": {"main": "Feeding fault", "sub": "Too low power inverter 1.5", "board": "81", "type": "fault"},
+  "62.116": {"main": "Feeding fault", "sub": "Too low power inverter 1.6", "board": "81", "type": "fault"},
+  "62.117": {"main": "Feeding fault", "sub": "Too low power inverter 1.7", "board": "81", "type": "fault"},
+  "62.118": {"main": "Feeding fault", "sub": "Too low power inverter 1.8", "board": "81", "type": "fault"},
+  "62.121": {"main": "Feeding fault", "sub": "Too low power inverter 2.1", "board": "81", "type": "fault"},
+  "62.122": {"main": "Feeding fault", "sub": "Too low power inverter 2.2", "board": "81", "type": "fault"},
+  "62.123": {"main": "Feeding fault", "sub": "Too low power inverter 2.3", "board": "81", "type": "fault"},
+  "62.124": {"main": "Feeding fault", "sub": "Too low power inverter 2.4", "board": "81", "type": "fault"},
+  "62.125": {"main": "Feeding fault", "sub": "Too low power inverter 2.5", "board": "81", "type": "fault"},
+  "62.126": {"main": "Feeding fault", "sub": "Too low power inverter 2.6", "board": "81", "type": "fault"},
+  "62.127": {"main": "Feeding fault", "sub": "Too low power inverter 2.7", "board": "81", "type": "fault"},
+  "62.128": {"main": "Feeding fault", "sub": "Too low power inverter 2.8", "board": "81", "type": "fault"},
+  "62.131": {"main": "Feeding fault", "sub": "Too low power inverter 3.1", "board": "81", "type": "fault"},
+  "62.132": {"main": "Feeding fault", "sub": "Too low power inverter 3.2", "board": "81", "type": "fault"},
+  "62.133": {"main": "Feeding fault", "sub": "Too low power inverter 3.3", "board": "81", "type": "fault"},
+  "62.134": {"main": "Feeding fault", "sub": "Too low power inverter 3.4", "board": "81", "type": "fault"},
+  "62.135": {"main": "Feeding fault", "sub": "Too low power inverter 3.5", "board": "81", "type": "fault"},
+  "62.136": {"main": "Feeding fault", "sub": "Too low power inverter 3.6", "board": "81", "type": "fault"},
+  "62.137": {"main": "Feeding fault", "sub": "Too low power inverter 3.7", "board": "81", "type": "fault"},
+  "62.138": {"main": "Feeding fault", "sub": "Too low power inverter 3.8", "board": "81", "type": "fault"},
+  "62.141": {"main": "Feeding fault", "sub": "Too low power inverter 4.1", "board": "81", "type": "fault"},
+  "62.142": {"main": "Feeding fault", "sub": "Too low power inverter 4.2", "board": "81", "type": "fault"},
+  "62.143": {"main": "Feeding fault", "sub": "Too low power inverter 4.3", "board": "81", "type": "fault"},
+  "62.144": {"main": "Feeding fault", "sub": "Too low power inverter 4.4", "board": "81", "type": "fault"},
+  "62.145": {"main": "Feeding fault", "sub": "Too low power inverter 4.5", "board": "81", "type": "fault"},
+  "62.146": {"main": "Feeding fault", "sub": "Too low power inverter 4.6", "board": "81", "type": "fault"},
+  "62.147": {"main": "Feeding fault", "sub": "Too low power inverter 4.7", "board": "81", "type": "fault"},
+  "62.148": {"main": "Feeding fault", "sub": "Too low power inverter 4.8", "board": "81", "type": "fault"},
+  "62.211": {"main": "Feeding fault", "sub": "Too much power inverter 1.1", "board": "81", "type": "fault"},
+  "62.212": {"main": "Feeding fault", "sub": "Too much power inverter 1.2", "board": "81", "type": "fault"},
+  "62.213": {"main": "Feeding fault", "sub": "Too much power inverter 1.3", "board": "81", "type": "fault"},
+  "62.214": {"main": "Feeding fault", "sub": "Too much power inverter 1.4", "board": "81", "type": "fault"},
+  "62.215": {"main": "Feeding fault", "sub": "Too much power inverter 1.5", "board": "81", "type": "fault"},
+  "62.216": {"main": "Feeding fault", "sub": "Too much power inverter 1.6", "board": "81", "type": "fault"},
+  "62.217": {"main": "Feeding fault", "sub": "Too much power inverter 1.7", "board": "81", "type": "fault"},
+  "62.218": {"main": "Feeding fault", "sub": "Too much power inverter 1.8", "board": "81", "type": "fault"},
+  "62.221": {"main": "Feeding fault", "sub": "Too much power inverter 2.1", "board": "81", "type": "fault"},
+  "62.222": {"main": "Feeding fault", "sub": "Too much power inverter 2.2", "board": "81", "type": "fault"},
+  "62.223": {"main": "Feeding fault", "sub": "Too much power inverter 2.3", "board": "81", "type": "fault"},
+  "62.224": {"main": "Feeding fault", "sub": "Too much power inverter 2.4", "board": "81", "type": "fault"},
+  "62.225": {"main": "Feeding fault", "sub": "Too much power inverter 2.5", "board": "81", "type": "fault"},
+  "62.226": {"main": "Feeding fault", "sub": "Too much power inverter 2.6", "board": "81", "type": "fault"},
+  "62.227": {"main": "Feeding fault", "sub": "Too much power inverter 2.7", "board": "81", "type": "fault"},
+  "62.228": {"main": "Feeding fault", "sub": "Too much power inverter 2.8", "board": "81", "type": "fault"},
+  "62.231": {"main": "Feeding fault", "sub": "Too much power inverter 3.1", "board": "81", "type": "fault"},
+  "62.232": {"main": "Feeding fault", "sub": "Too much power inverter 3.2", "board": "81", "type": "fault"},
+  "62.233": {"main": "Feeding fault", "sub": "Too much power inverter 3.3", "board": "81", "type": "fault"},
+  "62.234": {"main": "Feeding fault", "sub": "Too much power inverter 3.4", "board": "81", "type": "fault"},
+  "62.235": {"main": "Feeding fault", "sub": "Too much power inverter 3.5", "board": "81", "type": "fault"},
+  "62.236": {"main": "Feeding fault", "sub": "Too much power inverter 3.6", "board": "81", "type": "fault"},
+  "62.237": {"main": "Feeding fault", "sub": "Too much power inverter 3.7", "board": "81", "type": "fault"},
+  "62.238": {"main": "Feeding fault", "sub": "Too much power inverter 3.8", "board": "81", "type": "fault"},
+  "62.241": {"main": "Feeding fault", "sub": "Too much power inverter 4.1", "board": "81", "type": "fault"},
+  "62.242": {"main": "Feeding fault", "sub": "Too much power inverter 4.2", "board": "81", "type": "fault"},
+  "62.243": {"main": "Feeding fault", "sub": "Too much power inverter 4.3", "board": "81", "type": "fault"},
+  "62.244": {"main": "Feeding fault", "sub": "Too much power inverter 4.4", "board": "81", "type": "fault"},
+  "62.245": {"main": "Feeding fault", "sub": "Too much power inverter 4.5", "board": "81", "type": "fault"},
+  "62.246": {"main": "Feeding fault", "sub": "Too much power inverter 4.6", "board": "81", "type": "fault"},
+  "62.247": {"main": "Feeding fault", "sub": "Too much power inverter 4.7", "board": "81", "type": "fault"},
+  "62.248": {"main": "Feeding fault", "sub": "Too much power inverter 4.8", "board": "81", "type": "fault"},
+  "62.311": {"main": "Feeding fault", "sub": "Mains contactor off inverter 1.1", "board": "33", "type": "fault"},
+  "62.312": {"main": "Feeding fault", "sub": "Mains contactor off inverter 1.2", "board": "33", "type": "fault"},
+  "62.313": {"main": "Feeding fault", "sub": "Mains contactor off inverter 1.3", "board": "33", "type": "fault"},
+  "62.314": {"main": "Feeding fault", "sub": "Mains contactor off inverter 1.4", "board": "33", "type": "fault"},
+  "62.315": {"main": "Feeding fault", "sub": "Mains contactor off inverter 1.5", "board": "33", "type": "fault"},
+  "62.316": {"main": "Feeding fault", "sub": "Mains contactor off inverter 1.6", "board": "33", "type": "fault"},
+  "62.317": {"main": "Feeding fault", "sub": "Mains contactor off inverter 1.7", "board": "33", "type": "fault"},
+  "62.318": {"main": "Feeding fault", "sub": "Mains contactor off inverter 1.8", "board": "33", "type": "fault"},
+  "62.319": {"main": "Feeding fault", "sub": "Mains contactor off several inv. sys. 1", "board": "33", "type": "fault"},
+  "62.321": {"main": "Feeding fault", "sub": "Mains contactor off inverter 2.1", "board": "34", "type": "fault"},
+  "62.322": {"main": "Feeding fault", "sub": "Mains contactor off inverter 2.2", "board": "34", "type": "fault"},
+  "62.323": {"main": "Feeding fault", "sub": "Mains contactor off inverter 2.3", "board": "34", "type": "fault"},
+  "62.324": {"main": "Feeding fault", "sub": "Mains contactor off inverter 2.4", "board": "34", "type": "fault"},
+  "62.325": {"main": "Feeding fault", "sub": "Mains contactor off inverter 2.5", "board": "34", "type": "fault"},
+  "62.326": {"main": "Feeding fault", "sub": "Mains contactor off inverter 2.6", "board": "34", "type": "fault"},
+  "62.327": {"main": "Feeding fault", "sub": "Mains contactor off inverter 2.7", "board": "34", "type": "fault"},
+  "62.328": {"main": "Feeding fault", "sub": "Mains contactor off inverter 2.8", "board": "34", "type": "fault"},
+  "62.329": {"main": "Feeding fault", "sub": "Mains contactor off several inv. sys. 2", "board": "34", "type": "fault"},
+  "62.331": {"main": "Feeding fault", "sub": "Mains contactor off inverter 3.1", "board": "35", "type": "fault"},
+  "62.332": {"main": "Feeding fault", "sub": "Mains contactor off inverter 3.2", "board": "35", "type": "fault"},
+  "62.333": {"main": "Feeding fault", "sub": "Mains contactor off inverter 3.3", "board": "35", "type": "fault"},
+  "62.334": {"main": "Feeding fault", "sub": "Mains contactor off inverter 3.4", "board": "35", "type": "fault"},
+  "62.335": {"main": "Feeding fault", "sub": "Mains contactor off inverter 3.5", "board": "35", "type": "fault"},
+  "62.336": {"main": "Feeding fault", "sub": "Mains contactor off inverter 3.6", "board": "35", "type": "fault"},
+  "62.337": {"main": "Feeding fault", "sub": "Mains contactor off inverter 3.7", "board": "35", "type": "fault"},
+  "62.338": {"main": "Feeding fault", "sub": "Mains contactor off inverter 3.8", "board": "35", "type": "fault"},
+  "62.339": {"main": "Feeding fault", "sub": "Mains contactor off several inv. sys. 3", "board": "35", "type": "fault"},
+  "62.341": {"main": "Feeding fault", "sub": "Mains contactor off inverter 4.1", "board": "36", "type": "fault"},
+  "62.342": {"main": "Feeding fault", "sub": "Mains contactor off inverter 4.2", "board": "36", "type": "fault"},
+  "62.343": {"main": "Feeding fault", "sub": "Mains contactor off inverter 4.3", "board": "36", "type": "fault"},
+  "62.344": {"main": "Feeding fault", "sub": "Mains contactor off inverter 4.4", "board": "36", "type": "fault"},
+  "62.345": {"main": "Feeding fault", "sub": "Mains contactor off inverter 4.5", "board": "36", "type": "fault"},
+  "62.346": {"main": "Feeding fault", "sub": "Mains contactor off inverter 4.6", "board": "36", "type": "fault"},
+  "62.347": {"main": "Feeding fault", "sub": "Mains contactor off inverter 4.7", "board": "36", "type": "fault"},
+  "62.348": {"main": "Feeding fault", "sub": "Mains contactor off inverter 4.8", "board": "36", "type": "fault"},
+  "62.349": {"main": "Feeding fault", "sub": "Mains contactor off several inv. sys. 4", "board": "36", "type": "fault"},
+  "62.411": {"main": "Feeding fault", "sub": "Chopper not activated inverter 1.1", "board": "33", "type": "fault"},
+  "62.412": {"main": "Feeding fault", "sub": "Chopper not activated inverter 1.2", "board": "33", "type": "fault"},
+  "62.413": {"main": "Feeding fault", "sub": "Chopper not activated inverter 1.3", "board": "33", "type": "fault"},
+  "62.414": {"main": "Feeding fault", "sub": "Chopper not activated inverter 1.4", "board": "33", "type": "fault"},
+  "62.415": {"main": "Feeding fault", "sub": "Chopper not activated inverter 1.5", "board": "33", "type": "fault"},
+  "62.416": {"main": "Feeding fault", "sub": "Chopper not activated inverter 1.6", "board": "33", "type": "fault"},
+  "62.417": {"main": "Feeding fault", "sub": "Chopper not activated inverter 1.7", "board": "33", "type": "fault"},
+  "62.418": {"main": "Feeding fault", "sub": "Chopper not activated inverter 1.8", "board": "33", "type": "fault"},
+  "62.419": {"main": "Feeding fault", "sub": "Chopper not activated several inv. sys 1", "board": "33", "type": "fault"},
+  "62.421": {"main": "Feeding fault", "sub": "Chopper not activated inverter 2.1", "board": "34", "type": "fault"},
+  "62.422": {"main": "Feeding fault", "sub": "Chopper not activated inverter 2.2", "board": "34", "type": "fault"},
+  "62.423": {"main": "Feeding fault", "sub": "Chopper not activated inverter 2.3", "board": "34", "type": "fault"},
+  "62.424": {"main": "Feeding fault", "sub": "Chopper not activated inverter 2.4", "board": "34", "type": "fault"},
+  "62.425": {"main": "Feeding fault", "sub": "Chopper not activated inverter 2.5", "board": "34", "type": "fault"},
+  "62.426": {"main": "Feeding fault", "sub": "Chopper not activated inverter 2.6", "board": "34", "type": "fault"},
+  "62.427": {"main": "Feeding fault", "sub": "Chopper not activated inverter 2.7", "board": "34", "type": "fault"},
+  "62.428": {"main": "Feeding fault", "sub": "Chopper not activated inverter 2.8", "board": "34", "type": "fault"},
+  "62.429": {"main": "Feeding fault", "sub": "Chopper not activated several inv. sys 2", "board": "34", "type": "fault"},
+  "62.431": {"main": "Feeding fault", "sub": "Chopper not activated inverter 3.1", "board": "35", "type": "fault"},
+  "62.432": {"main": "Feeding fault", "sub": "Chopper not activated inverter 3.2", "board": "35", "type": "fault"},
+  "62.433": {"main": "Feeding fault", "sub": "Chopper not activated inverter 3.3", "board": "35", "type": "fault"},
+  "62.434": {"main": "Feeding fault", "sub": "Chopper not activated inverter 3.4", "board": "35", "type": "fault"},
+  "62.435": {"main": "Feeding fault", "sub": "Chopper not activated inverter 3.5", "board": "35", "type": "fault"},
+  "62.436": {"main": "Feeding fault", "sub": "Chopper not activated inverter 3.6", "board": "35", "type": "fault"},
+  "62.437": {"main": "Feeding fault", "sub": "Chopper not activated inverter 3.7", "board": "35", "type": "fault"},
+  "62.438": {"main": "Feeding fault", "sub": "Chopper not activated inverter 3.8", "board": "35", "type": "fault"},
+  "62.439": {"main": "Feeding fault", "sub": "Chopper not activated several inv. sys 3", "board": "35", "type": "fault"},
+  "62.441": {"main": "Feeding fault", "sub": "Chopper not activated inverter 4.1", "board": "36", "type": "fault"},
+  "62.442": {"main": "Feeding fault", "sub": "Chopper not activated inverter 4.2", "board": "36", "type": "fault"},
+  "62.443": {"main": "Feeding fault", "sub": "Chopper not activated inverter 4.3", "board": "36", "type": "fault"},
+  "62.444": {"main": "Feeding fault", "sub": "Chopper not activated inverter 4.4", "board": "36", "type": "fault"},
+  "62.445": {"main": "Feeding fault", "sub": "Chopper not activated inverter 4.5", "board": "36", "type": "fault"},
+  "62.446": {"main": "Feeding fault", "sub": "Chopper not activated inverter 4.6", "board": "36", "type": "fault"},
+  "62.447": {"main": "Feeding fault", "sub": "Chopper not activated inverter 4.7", "board": "36", "type": "fault"},
+  "62.448": {"main": "Feeding fault", "sub": "Chopper not activated inverter 4.8", "board": "36", "type": "fault"},
+  "62.449": {"main": "Feeding fault", "sub": "Chopper not activated several inv. sys 4", "board": "36", "type": "fault"},
+  "62.511": {"main": "Feeding fault", "sub": "No zero crossing inverter 1.1", "board": "33", "type": "fault"},
+  "62.512": {"main": "Feeding fault", "sub": "No zero crossing inverter 1.2", "board": "33", "type": "fault"},
+  "62.513": {"main": "Feeding fault", "sub": "No zero crossing inverter 1.3", "board": "33", "type": "fault"},
+  "62.514": {"main": "Feeding fault", "sub": "No zero crossing inverter 1.4", "board": "33", "type": "fault"},
+  "62.515": {"main": "Feeding fault", "sub": "No zero crossing inverter 1.5", "board": "33", "type": "fault"},
+  "62.516": {"main": "Feeding fault", "sub": "No zero crossing inverter 1.6", "board": "33", "type": "fault"},
+  "62.517": {"main": "Feeding fault", "sub": "No zero crossing inverter 1.7", "board": "33", "type": "fault"},
+  "62.518": {"main": "Feeding fault", "sub": "No zero crossing inverter 1.8", "board": "33", "type": "fault"},
+  "62.519": {"main": "Feeding fault", "sub": "No zero crossing several inv. system 1", "board": "33", "type": "fault"},
+  "62.521": {"main": "Feeding fault", "sub": "No zero crossing inverter 2.1", "board": "34", "type": "fault"},
+  "62.522": {"main": "Feeding fault", "sub": "No zero crossing inverter 2.2", "board": "34", "type": "fault"},
+  "62.523": {"main": "Feeding fault", "sub": "No zero crossing inverter 2.3", "board": "34", "type": "fault"},
+  "62.524": {"main": "Feeding fault", "sub": "No zero crossing inverter 2.4", "board": "34", "type": "fault"},
+  "62.525": {"main": "Feeding fault", "sub": "No zero crossing inverter 2.5", "board": "34", "type": "fault"},
+  "62.526": {"main": "Feeding fault", "sub": "No zero crossing inverter 2.6", "board": "34", "type": "fault"},
+  "62.527": {"main": "Feeding fault", "sub": "No zero crossing inverter 2.7", "board": "34", "type": "fault"},
+  "62.528": {"main": "Feeding fault", "sub": "No zero crossing inverter 2.8", "board": "34", "type": "fault"},
+  "62.529": {"main": "Feeding fault", "sub": "No zero crossing several inv. system 2", "board": "34", "type": "fault"},
+  "62.531": {"main": "Feeding fault", "sub": "No zero crossing inverter 3.1", "board": "35", "type": "fault"},
+  "62.532": {"main": "Feeding fault", "sub": "No zero crossing inverter 3.2", "board": "35", "type": "fault"},
+  "62.533": {"main": "Feeding fault", "sub": "No zero crossing inverter 3.3", "board": "35", "type": "fault"},
+  "62.534": {"main": "Feeding fault", "sub": "No zero crossing inverter 3.4", "board": "35", "type": "fault"},
+  "62.535": {"main": "Feeding fault", "sub": "No zero crossing inverter 3.5", "board": "35", "type": "fault"},
+  "62.536": {"main": "Feeding fault", "sub": "No zero crossing inverter 3.6", "board": "35", "type": "fault"},
+  "62.537": {"main": "Feeding fault", "sub": "No zero crossing inverter 3.7", "board": "35", "type": "fault"},
+  "62.538": {"main": "Feeding fault", "sub": "No zero crossing inverter 3.8", "board": "35", "type": "fault"},
+  "62.539": {"main": "Feeding fault", "sub": "No zero crossing several inv. system 3", "board": "35", "type": "fault"},
+  "62.541": {"main": "Feeding fault", "sub": "No zero crossing inverter 4.1", "board": "36", "type": "fault"},
+  "62.542": {"main": "Feeding fault", "sub": "No zero crossing inverter 4.2", "board": "36", "type": "fault"},
+  "62.543": {"main": "Feeding fault", "sub": "No zero crossing inverter 4.3", "board": "36", "type": "fault"},
+  "62.544": {"main": "Feeding fault", "sub": "No zero crossing inverter 4.4", "board": "36", "type": "fault"},
+  "62.545": {"main": "Feeding fault", "sub": "No zero crossing inverter 4.5", "board": "36", "type": "fault"},
+  "62.546": {"main": "Feeding fault", "sub": "No zero crossing inverter 4.6", "board": "36", "type": "fault"},
+  "62.547": {"main": "Feeding fault", "sub": "No zero crossing inverter 4.7", "board": "36", "type": "fault"},
+  "62.548": {"main": "Feeding fault", "sub": "No zero crossing inverter 4.8", "board": "36", "type": "fault"},
+  "62.549": {"main": "Feeding fault", "sub": "No zero crossing several inv. system 4", "board": "36", "type": "fault"},
+  "62.611": {"main": "Feeding fault", "sub": "Diff. phase current inverter 1.1", "board": "33", "type": "fault"},
+  "62.612": {"main": "Feeding fault", "sub": "Diff. phase current inverter 1.2", "board": "33", "type": "fault"},
+  "62.613": {"main": "Feeding fault", "sub": "Diff. phase current inverter 1.3", "board": "33", "type": "fault"},
+  "62.614": {"main": "Feeding fault", "sub": "Diff. phase current inverter 1.4", "board": "33", "type": "fault"},
+  "62.615": {"main": "Feeding fault", "sub": "Diff. phase current inverter 1.5", "board": "33", "type": "fault"},
+  "62.616": {"main": "Feeding fault", "sub": "Diff. phase current inverter 1.6", "board": "33", "type": "fault"},
+  "62.617": {"main": "Feeding fault", "sub": "Diff. phase current inverter 1.7", "board": "33", "type": "fault"},
+  "62.618": {"main": "Feeding fault", "sub": "Diff. phase current inverter 1.8", "board": "33", "type": "fault"},
+  "62.619": {"main": "Feeding fault", "sub": "Diff. phase current several inv. sys. 1", "board": "33", "type": "fault"},
+  "62.621": {"main": "Feeding fault", "sub": "Diff. phase current inverter 2.1", "board": "34", "type": "fault"},
+  "62.622": {"main": "Feeding fault", "sub": "Diff. phase current inverter 2.2", "board": "34", "type": "fault"},
+  "62.623": {"main": "Feeding fault", "sub": "Diff. phase current inverter 2.3", "board": "34", "type": "fault"},
+  "62.624": {"main": "Feeding fault", "sub": "Diff. phase current inverter 2.4", "board": "34", "type": "fault"},
+  "62.625": {"main": "Feeding fault", "sub": "Diff. phase current inverter 2.5", "board": "34", "type": "fault"},
+  "62.626": {"main": "Feeding fault", "sub": "Diff. phase current inverter 2.6", "board": "34", "type": "fault"},
+  "62.627": {"main": "Feeding fault", "sub": "Diff. phase current inverter 2.7", "board": "34", "type": "fault"},
+  "62.628": {"main": "Feeding fault", "sub": "Diff. phase current inverter 2.8", "board": "34", "type": "fault"},
+  "62.629": {"main": "Feeding fault", "sub": "Diff. phase current several inv. sys. 2", "board": "34", "type": "fault"},
+  "62.631": {"main": "Feeding fault", "sub": "Diff. phase current inverter 3.1", "board": "35", "type": "fault"},
+  "62.632": {"main": "Feeding fault", "sub": "Diff. phase current inverter 3.2", "board": "35", "type": "fault"},
+  "62.633": {"main": "Feeding fault", "sub": "Diff. phase current inverter 3.3", "board": "35", "type": "fault"},
+  "62.634": {"main": "Feeding fault", "sub": "Diff. phase current inverter 3.4", "board": "35", "type": "fault"},
+  "62.635": {"main": "Feeding fault", "sub": "Diff. phase current inverter 3.5", "board": "35", "type": "fault"},
+  "62.636": {"main": "Feeding fault", "sub": "Diff. phase current inverter 3.6", "board": "35", "type": "fault"},
+  "62.637": {"main": "Feeding fault", "sub": "Diff. phase current inverter 3.7", "board": "35", "type": "fault"},
+  "62.638": {"main": "Feeding fault", "sub": "Diff. phase current inverter 3.8", "board": "35", "type": "fault"},
+  "62.639": {"main": "Feeding fault", "sub": "Diff. phase current several inv. sys. 3", "board": "35", "type": "fault"},
+  "62.641": {"main": "Feeding fault", "sub": "Diff. phase current inverter 4.1", "board": "36", "type": "fault"},
+  "62.642": {"main": "Feeding fault", "sub": "Diff. phase current inverter 4.2", "board": "36", "type": "fault"},
+  "62.643": {"main": "Feeding fault", "sub": "Diff. phase current inverter 4.3", "board": "36", "type": "fault"},
+  "62.644": {"main": "Feeding fault", "sub": "Diff. phase current inverter 4.4", "board": "36", "type": "fault"},
+  "62.645": {"main": "Feeding fault", "sub": "Diff. phase current inverter 4.5", "board": "36", "type": "fault"},
+  "62.646": {"main": "Feeding fault", "sub": "Diff. phase current inverter 4.6", "board": "36", "type": "fault"},
+  "62.647": {"main": "Feeding fault", "sub": "Diff. phase current inverter 4.7", "board": "36", "type": "fault"},
+  "62.648": {"main": "Feeding fault", "sub": "Diff. phase current inverter 4.8", "board": "36", "type": "fault"},
+  "62.649": {"main": "Feeding fault", "sub": "Diff. phase current several inv. sys. 4", "board": "36", "type": "fault"},
+  "62.711": {"main": "Feeding fault", "sub": "Overload chopper inverter 1.1", "board": "33", "type": "fault"},
+  "62.712": {"main": "Feeding fault", "sub": "Overload chopper inverter 1.2", "board": "33", "type": "fault"},
+  "62.713": {"main": "Feeding fault", "sub": "Overload chopper inverter 1.3", "board": "33", "type": "fault"},
+  "62.714": {"main": "Feeding fault", "sub": "Overload chopper inverter 1.4", "board": "33", "type": "fault"},
+  "62.715": {"main": "Feeding fault", "sub": "Overload chopper inverter 1.5", "board": "33", "type": "fault"},
+  "62.716": {"main": "Feeding fault", "sub": "Overload chopper inverter 1.6", "board": "33", "type": "fault"},
+  "62.717": {"main": "Feeding fault", "sub": "Overload chopper inverter 1.7", "board": "33", "type": "fault"},
+  "62.718": {"main": "Feeding fault", "sub": "Overload chopper inverter 1.8", "board": "33", "type": "fault"},
+  "62.719": {"main": "Feeding fault", "sub": "Overload chopper several inv. system 1", "board": "33", "type": "fault"},
+  "62.721": {"main": "Feeding fault", "sub": "Overload chopper inverter 2.1", "board": "34", "type": "fault"},
+  "62.722": {"main": "Feeding fault", "sub": "Overload chopper inverter 2.2", "board": "34", "type": "fault"},
+  "62.723": {"main": "Feeding fault", "sub": "Overload chopper inverter 2.3", "board": "34", "type": "fault"},
+  "62.724": {"main": "Feeding fault", "sub": "Overload chopper inverter 2.4", "board": "34", "type": "fault"},
+  "62.725": {"main": "Feeding fault", "sub": "Overload chopper inverter 2.5", "board": "34", "type": "fault"},
+  "62.726": {"main": "Feeding fault", "sub": "Overload chopper inverter 2.6", "board": "34", "type": "fault"},
+  "62.727": {"main": "Feeding fault", "sub": "Overload chopper inverter 2.7", "board": "34", "type": "fault"},
+  "62.728": {"main": "Feeding fault", "sub": "Overload chopper inverter 2.8", "board": "34", "type": "fault"},
+  "62.729": {"main": "Feeding fault", "sub": "Overload chopper several inv. system 2", "board": "34", "type": "fault"},
+  "62.731": {"main": "Feeding fault", "sub": "Overload chopper inverter 3.1", "board": "35", "type": "fault"},
+  "62.732": {"main": "Feeding fault", "sub": "Overload chopper inverter 3.2", "board": "35", "type": "fault"},
+  "62.733": {"main": "Feeding fault", "sub": "Overload chopper inverter 3.3", "board": "35", "type": "fault"},
+  "62.734": {"main": "Feeding fault", "sub": "Overload chopper inverter 3.4", "board": "35", "type": "fault"},
+  "62.735": {"main": "Feeding fault", "sub": "Overload chopper inverter 3.5", "board": "35", "type": "fault"},
+  "62.736": {"main": "Feeding fault", "sub": "Overload chopper inverter 3.6", "board": "35", "type": "fault"},
+  "62.737": {"main": "Feeding fault", "sub": "Overload chopper inverter 3.7", "board": "35", "type": "fault"},
+  "62.738": {"main": "Feeding fault", "sub": "Overload chopper inverter 3.8", "board": "35", "type": "fault"},
+  "62.739": {"main": "Feeding fault", "sub": "Overload chopper several inv. system 3", "board": "35", "type": "fault"},
+  "62.741": {"main": "Feeding fault", "sub": "Overload chopper inverter 4.1", "board": "36", "type": "fault"},
+  "62.742": {"main": "Feeding fault", "sub": "Overload chopper inverter 4.2", "board": "36", "type": "fault"},
+  "62.743": {"main": "Feeding fault", "sub": "Overload chopper inverter 4.3", "board": "36", "type": "fault"},
+  "62.744": {"main": "Feeding fault", "sub": "Overload chopper inverter 4.4", "board": "36", "type": "fault"},
+  "62.745": {"main": "Feeding fault", "sub": "Overload chopper inverter 4.5", "board": "36", "type": "fault"},
+  "62.746": {"main": "Feeding fault", "sub": "Overload chopper inverter 4.6", "board": "36", "type": "fault"},
+  "62.747": {"main": "Feeding fault", "sub": "Overload chopper inverter 4.7", "board": "36", "type": "fault"},
+  "62.748": {"main": "Feeding fault", "sub": "Overload chopper inverter 4.8", "board": "36", "type": "fault"},
+  "62.749": {"main": "Feeding fault", "sub": "Overload chopper several inv. system 4", "board": "36", "type": "fault"},
+  "62.811": {"main": "Feeding fault", "sub": "Current measurement inverter 1.1", "board": "33", "type": "fault"},
+  "62.812": {"main": "Feeding fault", "sub": "Current measurement inverter 1.2", "board": "33", "type": "fault"},
+  "62.813": {"main": "Feeding fault", "sub": "Current measurement inverter 1.3", "board": "33", "type": "fault"},
+  "62.814": {"main": "Feeding fault", "sub": "Current measurement inverter 1.4", "board": "33", "type": "fault"},
+  "62.815": {"main": "Feeding fault", "sub": "Current measurement inverter 1.5", "board": "33", "type": "fault"},
+  "62.816": {"main": "Feeding fault", "sub": "Current measurement inverter 1.6", "board": "33", "type": "fault"},
+  "62.817": {"main": "Feeding fault", "sub": "Current measurement inverter 1.7", "board": "33", "type": "fault"},
+  "62.818": {"main": "Feeding fault", "sub": "Current measurement inverter 1.8", "board": "33", "type": "fault"},
+  "62.821": {"main": "Feeding fault", "sub": "Current measurement inverter 2.1", "board": "34", "type": "fault"},
+  "62.822": {"main": "Feeding fault", "sub": "Current measurement inverter 2.2", "board": "34", "type": "fault"},
+  "62.823": {"main": "Feeding fault", "sub": "Current measurement inverter 2.3", "board": "34", "type": "fault"},
+  "62.824": {"main": "Feeding fault", "sub": "Current measurement inverter 2.4", "board": "34", "type": "fault"},
+  "62.825": {"main": "Feeding fault", "sub": "Current measurement inverter 2.5", "board": "34", "type": "fault"},
+  "62.826": {"main": "Feeding fault", "sub": "Current measurement inverter 2.6", "board": "34", "type": "fault"},
+  "62.827": {"main": "Feeding fault", "sub": "Current measurement inverter 2.7", "board": "34", "type": "fault"},
+  "62.828": {"main": "Feeding fault", "sub": "Current measurement inverter 2.8", "board": "34", "type": "fault"},
+  "62.831": {"main": "Feeding fault", "sub": "Current measurement inverter 3.1", "board": "35", "type": "fault"},
+  "62.832": {"main": "Feeding fault", "sub": "Current measurement inverter 3.2", "board": "35", "type": "fault"},
+  "62.833": {"main": "Feeding fault", "sub": "Current measurement inverter 3.3", "board": "35", "type": "fault"},
+  "62.834": {"main": "Feeding fault", "sub": "Current measurement inverter 3.4", "board": "35", "type": "fault"},
+  "62.835": {"main": "Feeding fault", "sub": "Current measurement inverter 3.5", "board": "35", "type": "fault"},
+  "62.836": {"main": "Feeding fault", "sub": "Current measurement inverter 3.6", "board": "35", "type": "fault"},
+  "62.837": {"main": "Feeding fault", "sub": "Current measurement inverter 3.7", "board": "35", "type": "fault"},
+  "62.838": {"main": "Feeding fault", "sub": "Current measurement inverter 3.8", "board": "35", "type": "fault"},
+  "62.841": {"main": "Feeding fault", "sub": "Current measurement inverter 4.1", "board": "36", "type": "fault"},
+  "62.842": {"main": "Feeding fault", "sub": "Current measurement inverter 4.2", "board": "36", "type": "fault"},
+  "62.843": {"main": "Feeding fault", "sub": "Current measurement inverter 4.3", "board": "36", "type": "fault"},
+  "62.844": {"main": "Feeding fault", "sub": "Current measurement inverter 4.4", "board": "36", "type": "fault"},
+  "62.845": {"main": "Feeding fault", "sub": "Current measurement inverter 4.5", "board": "36", "type": "fault"},
+  "62.846": {"main": "Feeding fault", "sub": "Current measurement inverter 4.6", "board": "36", "type": "fault"},
+  "62.847": {"main": "Feeding fault", "sub": "Current measurement inverter 4.7", "board": "36", "type": "fault"},
+  "62.848": {"main": "Feeding fault", "sub": "Current measurement inverter 4.8", "board": "36", "type": "fault"},
+  "62.911": {"main": "Feeding fault", "sub": "External shut down inverter 1.1", "board": "33", "type": "fault"},
+  "62.912": {"main": "Feeding fault", "sub": "External shut down inverter 1.2", "board": "33", "type": "fault"},
+  "62.913": {"main": "Feeding fault", "sub": "External shut down inverter 1.3", "board": "33", "type": "fault"},
+  "62.914": {"main": "Feeding fault", "sub": "External shut down inverter 1.4", "board": "33", "type": "fault"},
+  "62.915": {"main": "Feeding fault", "sub": "External shut down inverter 1.5", "board": "33", "type": "fault"},
+  "62.916": {"main": "Feeding fault", "sub": "External shut down inverter 1.6", "board": "33", "type": "fault"},
+  "62.917": {"main": "Feeding fault", "sub": "External shut down inverter 1.7", "board": "33", "type": "fault"},
+  "62.918": {"main": "Feeding fault", "sub": "External shut down inverter 1.8", "board": "33", "type": "fault"},
+  "62.919": {"main": "Feeding fault", "sub": "External shut down several inv. sys. 1", "board": "33", "type": "fault"},
+  "62.921": {"main": "Feeding fault", "sub": "External shut down inverter 2.1", "board": "34", "type": "fault"},
+  "62.922": {"main": "Feeding fault", "sub": "External shut down inverter 2.2", "board": "34", "type": "fault"},
+  "62.923": {"main": "Feeding fault", "sub": "External shut down inverter 2.3", "board": "34", "type": "fault"},
+  "62.924": {"main": "Feeding fault", "sub": "External shut down inverter 2.4", "board": "34", "type": "fault"},
+  "62.925": {"main": "Feeding fault", "sub": "External shut down inverter 2.5", "board": "34", "type": "fault"},
+  "62.926": {"main": "Feeding fault", "sub": "External shut down inverter 2.6", "board": "34", "type": "fault"},
+  "62.927": {"main": "Feeding fault", "sub": "External shut down inverter 2.7", "board": "34", "type": "fault"},
+  "62.928": {"main": "Feeding fault", "sub": "External shut down inverter 2.8", "board": "34", "type": "fault"},
+  "62.929": {"main": "Feeding fault", "sub": "External shut down several inv. sys. 2", "board": "34", "type": "fault"},
+  "62.931": {"main": "Feeding fault", "sub": "External shut down inverter 3.1", "board": "35", "type": "fault"},
+  "62.932": {"main": "Feeding fault", "sub": "External shut down inverter 3.2", "board": "35", "type": "fault"},
+  "62.933": {"main": "Feeding fault", "sub": "External shut down inverter 3.3", "board": "35", "type": "fault"},
+  "62.934": {"main": "Feeding fault", "sub": "External shut down inverter 3.4", "board": "35", "type": "fault"},
+  "62.935": {"main": "Feeding fault", "sub": "External shut down inverter 3.5", "board": "35", "type": "fault"},
+  "62.936": {"main": "Feeding fault", "sub": "External shut down inverter 3.6", "board": "35", "type": "fault"},
+  "62.937": {"main": "Feeding fault", "sub": "External shut down inverter 3.7", "board": "35", "type": "fault"},
+  "62.938": {"main": "Feeding fault", "sub": "External shut down inverter 3.8", "board": "35", "type": "fault"},
+  "62.939": {"main": "Feeding fault", "sub": "External shut down several inv. sys. 3", "board": "35", "type": "fault"},
+  "62.941": {"main": "Feeding fault", "sub": "External shut down inverter 4.1", "board": "36", "type": "fault"},
+  "62.942": {"main": "Feeding fault", "sub": "External shut down inverter 4.2", "board": "36", "type": "fault"},
+  "62.943": {"main": "Feeding fault", "sub": "External shut down inverter 4.3", "board": "36", "type": "fault"},
+  "62.944": {"main": "Feeding fault", "sub": "External shut down inverter 4.4", "board": "36", "type": "fault"},
+  "62.945": {"main": "Feeding fault", "sub": "External shut down inverter 4.5", "board": "36", "type": "fault"},
+  "62.946": {"main": "Feeding fault", "sub": "External shut down inverter 4.6", "board": "36", "type": "fault"},
+  "62.947": {"main": "Feeding fault", "sub": "External shut down inverter 4.7", "board": "36", "type": "fault"},
+  "62.948": {"main": "Feeding fault", "sub": "External shut down inverter 4.8", "board": "36", "type": "fault"},
+  "62.949": {"main": "Feeding fault", "sub": "External shut down several inv. sys. 4", "board": "36", "type": "fault"},
+  "62.1011": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 1.1", "board": "33", "type": "fault"},
+  "62.1012": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 1.2", "board": "33", "type": "fault"},
+  "62.1013": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 1.3", "board": "33", "type": "fault"},
+  "62.1014": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 1.4", "board": "33", "type": "fault"},
+  "62.1015": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 1.5", "board": "33", "type": "fault"},
+  "62.1016": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 1.6", "board": "33", "type": "fault"},
+  "62.1017": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 1.7", "board": "33", "type": "fault"},
+  "62.1018": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 1.8", "board": "33", "type": "fault"},
+  "62.1021": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 2.1", "board": "34", "type": "fault"},
+  "62.1022": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 2.2", "board": "34", "type": "fault"},
+  "62.1023": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 2.3", "board": "34", "type": "fault"},
+  "62.1024": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 2.4", "board": "34", "type": "fault"},
+  "62.1025": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 2.5", "board": "34", "type": "fault"},
+  "62.1026": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 2.6", "board": "34", "type": "fault"},
+  "62.1027": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 2.7", "board": "34", "type": "fault"},
+  "62.1028": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 2.8", "board": "34", "type": "fault"},
+  "62.1031": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 3.1", "board": "35", "type": "fault"},
+  "62.1032": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 3.2", "board": "35", "type": "fault"},
+  "62.1033": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 3.3", "board": "35", "type": "fault"},
+  "62.1034": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 3.4", "board": "35", "type": "fault"},
+  "62.1035": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 3.5", "board": "35", "type": "fault"},
+  "62.1036": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 3.6", "board": "35", "type": "fault"},
+  "62.1037": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 3.7", "board": "35", "type": "fault"},
+  "62.1038": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 3.8", "board": "35", "type": "fault"},
+  "62.1041": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 4.1", "board": "36", "type": "fault"},
+  "62.1042": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 4.2", "board": "36", "type": "fault"},
+  "62.1043": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 4.3", "board": "36", "type": "fault"},
+  "62.1044": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 4.4", "board": "36", "type": "fault"},
+  "62.1045": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 4.5", "board": "36", "type": "fault"},
+  "62.1046": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 4.6", "board": "36", "type": "fault"},
+  "62.1047": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 4.7", "board": "36", "type": "fault"},
+  "62.1048": {"main": "Feeding fault", "sub": "No double step-up-chopper inverter 4.8", "board": "36", "type": "fault"}
+};
+
+function searchFault() {
+  const mainVal = document.getElementById('mainCode').value.trim();
+  const subVal  = document.getElementById('subCode').value.trim();
+  const el      = document.getElementById('result');
+
+  if (!mainVal) {
+    el.innerHTML = `<div class="error-card">
+      <div class="error-code">!</div>
+      <p>Veuillez entrer<br>un <strong>code principal</strong></p>
+    </div>`;
+    return;
+  }
+
+  const key   = subVal ? `${mainVal}.${subVal}` : mainVal;
+  const fault = faultDB[key] || faultDB[mainVal];
+
+  if (!fault) {
+    el.innerHTML = `<div class="error-card">
+      <div class="error-code">—</div>
+      <p>Code <strong>${escHtml(key)}</strong> introuvable.<br>Vérifiez les codes saisis.</p>
+    </div>`;
+    return;
+  }
+
+  const cfg = {
+    fault: { label: 'Fault',       dot: 'fault' },
+    warn:  { label: 'Warning',dot: '' },
+    info:  { label: 'Info',  dot: '' },
+    ok:    { label: 'Operational', dot: '' },
+  };
+  const c = cfg[fault.type] || cfg.fault;
+  const t = fault.type || 'fault';
+
+  el.innerHTML = `<div class="result-card">
+    <div class="result-bar ${t}"></div>
+    <div class="result-body">
+
+      <div class="status-pill ${t}">
+        <span class="pill-dot ${c.dot}"></span>
+        ${c.label}
+      </div>
+
+      <div class="desc-block">
+        <div class="desc-eyebrow">Catégorie</div>
+        <div class="desc-main-text">${escHtml(fault.main || '—')}</div>
+      </div>
+
+      <div class="desc-block">
+        <div class="desc-eyebrow">Description</div>
+        <div class="desc-sub-text">${escHtml(fault.sub)}</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="id-row-single">
+        <div class="id-chip-solo">
+          <div class="id-chip-label">Board ID</div>
+          <div class="id-chip-value board">${escHtml(fault.board || '—')}</div>
+        </div>
+      </div>
+
+    </div>
+  </div>`;
+
+  // scroll result into view smoothly
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') searchFault();
+});
+</script>
+</body>
+</html>
